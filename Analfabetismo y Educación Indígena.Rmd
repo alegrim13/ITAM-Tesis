@@ -1,0 +1,2418 @@
+---
+output: pdf_document
+latex_engine: xelatex
+fontsize: 11pt
+linestretch: 1.5
+geometry: "paperheight=22.5cm,paperwidth=17cm,left=3cm,right=3cm,top=2.5cm,bottom=2.5cm"
+fig_width: 10
+fig_height: 6
+header-includes:
+- \usepackage{amssymb}
+- \usepackage[utf8]{inputenc}
+- \usepackage{graphicx}
+- \usepackage{enumitem}
+- \usepackage{amsmath}
+- \usepackage{amssymb}
+- \usepackage{multicol}
+- \setlength{\columnsep}{-20pt}
+- \usepackage{titling}
+- \usepackage{color}
+- \usepackage{tikz}
+- \usetikzlibrary{trees}
+- \usepackage{graphicx}
+- \usepackage{lscape}
+- \usepackage{longtable}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+---
+
+
+\begin{center}
+\thispagestyle{empty}
+\small
+\textbf{INSTITUTO TECNOLÓGICO AUTÓNOMO DE MÉXICO} \\
+\vspace{5pt}
+\end{center}
+
+![](C:/Users/ale_g/Dropbox/ITAM MEA/Tesis MEA/Logo ITAM.png)
+
+\begin{center}
+\thispagestyle{empty}
+\vspace{10pt}
+\normalsize
+\textbf{ANALFABETISMO Y EDUCACIÓN INDÍGENA EN MÉXICO:} \\
+\textbf{EVALUACIÓN DE IMPACTO DEL PROGRAMA DE INCLUSIÓN Y EQUIDAD EDUCATIVA} \\
+\vspace{20pt}
+\Large
+\textbf{T E S I S} \\
+\vspace{5pt}
+\normalsize
+QUE PARA OBTENER EL TÍTULO DE \\
+\vspace{5pt}
+\textbf{MAESTRO EN ECONOMÍA APLICADA} \\
+\vspace{5pt}
+PRESENTA \\
+\vspace{5pt}
+\textbf{ALEJANDRO GRIMALDI FERREIRA} \\
+\vspace{20pt}
+ASESOR: DR. ARTURO ALBERTO AGUILAR ESTEVA \\
+\vspace{20pt}
+CIUDAD DE MÉXICO \hfill 2021
+\end{center}
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r include=FALSE}
+library(pacman)
+#install.packages("remotes")
+#install.packages("withr")
+#remotes::install_github("diegovalle/mxmaps", force = T)
+#library(devtools)
+#install_github("GeoBosh/Rdpack")
+p_load(rmarkdown, haven, plm, car, stargazer, dplyr, DataCombine, clubSandwich, ggplot2, stats, knitr, kableExtra, mxmaps, taRifx)
+```
+
+
+```{r echo=FALSE}
+input <- "C:/Users/ale_g/Dropbox/ITAM MEA/Tesis MEA/Bases de Datos"
+
+datos <- read.csv(paste(input, "Analfabetismo y Educación Indígena 2010-2015.csv", sep="/"))
+datos <- as.data.frame(datos)
+datos$X <- NULL
+
+grupos <- read.csv(paste(input, "Analfabetismo y Educación Indígena 2000-2020 (Grupos).csv", sep="/"))
+grupos <- as.data.frame(grupos)
+grupos$X <- NULL
+
+edades <- read.csv(paste(input, "Analfabetismo y Educación Indígena 2000-2020 (Edades).csv", sep="/"))
+edades <- as.data.frame(edades)
+edades$X <- NULL
+
+mujeres <- read.csv(paste(input, "Analfabetismo y Educación Indígena 2000-2020 (Mujeres).csv", sep="/"))
+mujeres <- as.data.frame(mujeres)
+mujeres$X <- NULL
+
+f911 <- read.csv(paste(input, "Analfabetismo y Educación Indígena 2000-2020 (Formato 911).csv", sep="/"))
+f911 <- as.data.frame(f911)
+f911$X <- NULL
+```
+
+
+\newpage
+\setcounter{page}{1}
+
+
+![](C:/Users/ale_g/Dropbox/ITAM MEA/Tesis MEA/Sanskript.png)
+
+\hfill \textit{Lokah Samastah Sukhino Bhavantu}
+
+"Que todos los seres en todas las dimensiones sean prósperos, libres y felices y que mis pensamientos, palabras y acciones contribuyan a ello".
+
+
+\newpage
+
+
+# Agradecimientos
+
+Me siento infinitamente agradecido con la vida por haberme dado la oportunidad de llegar hasta este punto: amo a mi familia, amo a mis amigos, amo mi carrera y amo mi trabajo. Gracias a todas y todos mis amigos que me acompañaron en este y en tantos procesos; saben quienes son y lo que significa cada uno de ustedes para mí.
+
+Gracias a Rocío, mi maestra de yoga, a Alicia, mi psicóloga, y a Carina, mi nutrióloga, porque también fueron parte importante de este proceso. No solo como maestras, sino como guías de un camino de aprendizaje que me ha llevado a la felicidad de espíritu. Que este sea un recordatorio para no olvidar que no valemos por lo que hacemos ni lo que tenemos, sino por lo que somos.
+
+Gracias a todas y todos mis maestros que formaron parte de esta etapa: Claudia Aburto, Arturo Aguilar, Isidoro García, Rafa de Hoyos, Sumiko Hayasaka, Manett Vargas, Emilio Gutiérrez y Shaun McRae. Los admiro mucho y les agradezco por su pasión, humanismo y compromiso para la enseñanza. En especial, le agradezco a Claudia por haber confiado en mí y por haberme alentado a tomar esta experiencia. Gracias por tu gran capacidad docente, pero, sobre todo, por tu preocupación genuina hacia los alumnos.
+
+También, quisiera agradecerle a Arturo no solo por sus excelentes cursos de econometría, sino por orientarme en la construcción de esta tesis. Siempre encuentras más interrogantes que abren la investigación hacia nuevas rutas de análisis para profundizar en lo que hay detrás de cualquier argumento e inferencia. Gracias, además, por haberme dado la oportunidad de ayudarte con el curso de Microeconometría Aplicada; aprendí y disfruté mucho la experiencia.
+
+Por último, gracias a mi familia que siempre me ha apoyado en todos mis proyectos. Rubén, gracias por caminar junto a mí siempre; ciertamente, creo que no hubiera podido soñar con un mejor hermano, pero la vida me sonrió contigo. Mamá, gracias por ser siempre una luz que guía mi camino, eres un ejemplo de amor y compasión, esas fuerzas que realmente cambian al mundo. Papá, gracias por tu pasión y compromiso, eres mi ejemplo de lucha, trabajo y solidaridad; te debo lo que sé y lo que he logrado, aunque nunca se acerque a la manera en que tú salvas vidas cada día.
+
+Escribí esta tesis con el deseo de contribuir a la investigación empírica sobre el impacto de la educación en México, porque la educación y los derechos, en general, cambian vidas y construyen sociedades más libres, justas y prósperas. Espero que, algún día, todas y todos en el mundo tengan acceso a los derechos sociales con dignidad y justicia.
+
+
+\newpage
+
+
+\tableofcontents
+
+
+\newpage
+
+
+# 1. Introducción
+
+El proceso de alfabetización tiene muchas implicaciones sobre el desarrollo de la persona. Es el principal canal de comunicación con el mundo: cuando te levantas todas las mañanas, sabes que son las 8 a.m. porque puedes leer los números del reloj, sales a tomar el transporte público y sabes hacia dónde dirigirte porque puedes leer las señales e indicaciones del lugar, paras en el supermercado para comprar algunos bienes que te hacen falta y puedes comparar precios y calidad de productos y marcas para tomar la mejor decisión de consumo.
+
+Usualmente, no le damos importancia al papel que juegan la lectura y escritura básicas en nuestras vidas, porque son cosas que damos por hecho, como si hubiéramos nacido con ellas por naturaleza. Sin embargo, no es así, son aptitudes que se desarrollan, principalmente durante la infancia, y que son condiciones necesarias para acceder a un nivel de vida digno.
+
+Sobre esta misma línea, el analfabetismo se traduce no solo en la privación del derecho a la educación, sino también en un canal importante para la marginación y la pobreza. Cuando una persona no tiene acceso a la educación (especialmente, en este caso, al proceso de alfabetización) es muy probable que esta problemática tenga implicaciones sobre el bienestar económico de la persona y sobre su acceso al resto de los derechos sociales.
+
+> *"When children are first taught in a language that they speak and understand well, they learn more, are better placed to learn other languages, are more likely to stay in school and enjoy a school esperience appropiate to their culture and local circumstances".* (World Bank 2021, p. 8).
+
+Existe una amplia literatura al respecto del impacto de enseñar en un idioma conocido por las y los estudiantes, lo cual no solo tiene un impacto sobre su logro académico (Bühmann y Trudell 2007; Miscevic-Kadijevic 2015), sino sobre otras variables relevantes como la asistencia escolar (Smits, Huisman y Kruijff 2008).
+
+En todo caso, esta evidencia tiende a señalar que la enseñanza básica se tendría que basar en la lengua materna (Bühmann y Trudell 2007; Ganuza y Hedman 2017; Nkonde, et al. 2018), mientras que el español se aprenda solo como segunda lengua durante los primeros años. Si, eventualmente, se llega a secundaria o preparatoria sin haber aprendido español, el desempeño escolar será menor en promedio que el de aquellos estudiantes bilingües o cuya lengua materna es el español.
+
+En el caso de México, la población indígena es una de las más afectadas por esta problemática: en 2010, el porcentaje de la población de 15 años o más con analfabetismo se situó en 6.9%; sin embargo, entre la población que habla lengua indígena, la cifra se eleva a un 27.3% (Narro & Moctezuma, 2012). La problemática es aún más grave entre adultos mayores y mujeres: en el mismo año, el 72.7% de las mujeres de 60 años o más que hablaban lengua indígena eran analfabetas (Narro & Moctezuma, 2012).
+
+Este resultado tiene múltiples causas que pasan por la pobreza, marginación, discriminación, desigualdad, falta de movilidad social, entre otros elementos. En un primer momento, este ensayo buscará aislar el efecto de estas causas y probar que el propio hecho de hablar una lengua indígena tiene un impacto positivo sobre el analfabetismo en México.
+
+Esto se debe a que las lenguas indígenas provienen de múltiples familias lingüísticas diferentes, con estructuras sintácticas y morfológicas completamente diferentes al español. Esto dificultaría los procesos de alfabetización hasta tener un impacto positivo sobre el analfabetismo.
+
+Para verificar este resultado, se utilizó información a nivel municipal proveniente del Censo de Población 2010 y la Encuesta Intercensal 2015 del Instituto Nacional de Geografía y Estadística (INEGI) y se estimaron modelos de regresión para datos panel de efectos fijos y efectos aleatorios. Se concluye que un incremento de un punto en el porcentaje de hablantes de lengua indígena incrementa en 0.052 puntos el porcentaje de analfabetismo en los municipios de México, controlando por el nivel de pobreza, desigualdad, género, urbanización, población, rezago educativo, nivel académico, asistencia escolar y bienestar económico.
+
+Esta evidencia señala la necesidad del sistema educativo mexicano para adaptarse para permitir una mayor inclusión de la población indígena en los procesos de alfabetización. Se requiere fortalecer a las escuelas de educación indígena: por ejemplo, a través de políticas públicas que fortalezcan la infraestructura educativa de estas escuelas, que mejore la calidad docente y que mejore la asistencia escolar, eficiencia terminal y los aprendizajes de sus estudiantes.
+
+En segundo lugar, se buscará hacer una evaluación de impacto al componente de educación indígena del Programa de Inclusión y Equidad Educativa de la Secretaría de Educación Pública (SEP), el cual brindaba apoyo económico a las escuelas primarias de educación indígena en México entre 2014 y 2019. Para ello, se utilizaron modelos de Diferencias en Diferencias y se estimó que la presencia del programa redujo el porcentaje de analfabetismo entre la población de 6 a 11 años de los municipios con escuelas de educación indígena en 3.424 puntos porcentuales de 2010 a 2020. El mayor impacto se parece concentrar entre las niñas y niños de 6 a 7 años (entre 4.219 y 5.741 puntos porcentuales), pero la evidencia más robusta se refiere al efecto para la población de 9, 10 y 11 años: 2.580, 1.669 y 1.021 puntos porcentuales, respectivamente.
+
+Para cada especificación de modelos, se incorporaron efectos placebo entre 2000 y 2010 con el objetivo de aportar evidencia sobre el supuesto de tendencias paralelas. Sin embargo, la evidencia parece señalar que algunos coeficientes podrían estar sesgados y que el método de Diferencias en Diferencias podría no ser la mejor aproximación para realizar esta evaluación de impacto: especialmente, para el caso de la población de 6 y 7 años. Los resultados son más robustos para las niñas y niños de 9 a 11 años.
+
+En términos del mecanismo causal, este efecto podría pasar por un aumento en la infraestructura escolar o por una mejora en la calidad docente. Aunque no se cuenta con información precisa de lo anterior para el periodo de análisis, se utilizaron múltiples variables proxy: asistencia escolar, matrícula escolar, número de aulas, número de docentes y número de docentes con educación superior. Para ello, se utilizó la información del Formato 911 de la SEP exclusivamente para escuelas de educación indígena (excepto para asistencia escolar, donde se utilizó igualmente información de los Censos y Encuestas Intercensales del INEGI).
+
+La información no resulta contundente, pero parece señalar un incremento 1.312 puntos porcentuales en la asistencia escolar por municipio e incrementos de 2.502 alumnas y alumnos en la matrícula escolar y 0.113 aulas por escuela de educación indígena en municipios del programa.
+
+Intervenciones relativamente simples como la del Programa de Inclusión y Equidad Educativa pueden mejorar los aprendizajes del español durante el periodo crítico (previo a los 12 años). Sin embargo, si bien originalmente este programa se fragmentó en cuatro programas diferentes en 2020, el componente para educación indígena (ahora Programa de Atención a la Diversidad de la Educación Indígena) desapareció para el ejercicio 2021.
+
+
+\newpage
+
+
+# 2. Marco Teórico
+
+## 2.1. Alfabetización y diversidad lingüística
+
+*"Los límites de mi lenguaje significan los límites de mi mundo." (Wittgenstein 1921).*
+
+El analfabetismo es la carencia de habilidad para leer y escribir un breve recado (CONEVAL 2018). Cabe destacar que existe otra clase de analfabetismo denominado analfabetismo funcional, el cual se refiere a la falta de habilidad para comprender el contenido de los mensajes. Sin embargo, este estudio se enfocará, exclusivamente, al respecto del analfabetismo por el importante papel que juega para los procesos de aprendizaje en general y para el pleno desarrollo de la persona.
+
+Lenneberg (1975), considerado el padre de la biología del lenguaje, plantea la hipótesis de que existe un periodo crítico para el aprendizaje del lenguaje durante la infancia cuando el cerebro tiene mayor sensibilidad para construir redes neuronales. Newport (1990) demuestra que, por ejemplo, aprender una segunda lengua durante los primeros 12 años genera que las niñas y los niños hablen ese idioma sin acento. Si el lenguaje se aprende después, muestra, en promedio, más deformaciones en la morfología y la sintaxis de las oraciones. Esto se podría deber a dos hipótesis:
+
+> *"1. The crucial constraints needed for language acquisition are those of a special language faculty, equipped in advance to expect only certain types of structures to occur in human language. Maturational change may occur in these constraints, leading the older language learner to less success in inducing the linguistic system to which she is exposed".*
+
+> *"2. At least, some of the constraints crucial to success in language acquisition are nonlinguistic and the maturational changes which lead to more difficulty in language learning occur in these nonlinguistic constraints on perception and memory".* (Newport 1990, p. 27).
+
+Es decir, es posible que ciertos tipos de estructuras del lenguaje requieran de determinadas facultades lingüísticas (o no lingüísticas) previas. Si estas no se desarrollaron previamente, aprender una segunda lengua o una lengua durante la etapa adulta sería más accidentado.
+
+Algunos de los elementos esenciales del lenguaje son la sintaxis, semántica y morfología. La sintaxis es el conjunto de reglas del lenguaje que homologan estructuras sobre cómo coordinar y secuenciar palabras en una oración. El elemento que guía a la sintaxis es el verbo: “el verbo contiene información que no solo organiza la frase, sino que también ayuda a determinar su significado” (Cárdenas 2010). Por otra parte, la semántica se encuentra mucho más vinculada con el estudio del significado de las palabras (Cárdenas 2010). Sin embargo, el significado siempre parte del significante, por lo que la semántica introduce el vínculo directo entre el lenguaje como algo mecánico o exógeno y el lenguaje como elemento de apropiación.
+
+Finalmente, la morfología se refiere a la estructura de las palabras en lo individual. Es decir, a diferencia de la sintaxis que se refiere a la composición de oraciones, la morfología toma a cada palabra como unidad de análisis. ¿Por qué estos conceptos son importantes? Porque los lenguajes forman parte de familias: familias lingüísticas. Son grupos que mantienen una misma línea de origen; provienen del mismo punto y, por ende, mantienen cierta relación en sus estructuras ortográficas y gramaticales (Marlett 2019).
+
+Cuando una niña crece aprendiendo español, le será relativamente más sencillo aprender otras lenguas romances en comparación con otra niña que creció hablando inglés. El principio aquí es el mismo, en un país con tanta riqueza cultura como lo es México, existe también una gran pluralidad de lenguas que pertenecen a múltiples familias lingüísticas. La Clasificación de Lenguas Indígenas del INEGI contiene 334 lenguas indígenas; de las cuales solo 95 se pueden agrupar entre 13 familias lingüísticas (INEGI 2010).
+
+Solo como contraste para visualizar el grado de pluralidad lingüística que existe en México, se estima que, en África, existen cerca de dos mil lenguas; en Asia del Sur, mil quinientas y, en Nueva Guinea, mil (Albó & at 2009). Sin embargo, en estos lugares, estas lenguas se suelen agrupar entre 10 y 27 familias lingüísticas (Albó & at 2009). Mientras que solo en México se agrupan un total de 13 familias y restan 239 lenguas a las que no se les puede vincular con ninguna de éstas (INEGI 2010).
+
+Sumado a la dificultad lingüística para aprender español, un rezago durante su aprendizaje en la infancia le podría ocasionar efectos adversos en el largo plazo. Visualizando este contexto, una niña que crece aprendiendo una de estas lenguas indígenas tendrá mayor dificultad para aprender español, en comparación con otras niñas cuyo contexto es hispanoparlante. En otros términos, la niña indígena enfrentará mayor probabilidad de ser analfabeta que su contraparte.
+
+Por supuesto, en esta comparación, subyacen otras diferencias importantes. Probablemente, la niña que creció aprendiendo una lengua indígena vive en una localidad rural con menor infraestructura y mayor rezago educativos; tiene mayor probabilidad de sufrir condiciones de pobreza y situaciones de desigualdad y discriminación, entre otros elementos sociodemográficos que la ponen en una situación de mucha desventaja respecto del resto de sectores de la población. Más adelante, se explicará la estrategia empírica para aislar el efecto del lenguaje sobre analfabetismo para realizar una comparación hipotética entre la misma niña indígena si hubiera nacido en un contexto hispanoparlante, pero bajo las mismas condiciones de pobreza, urbanización, desigualdad, etc.
+
+## 2.2. Desarrollo de habilidades cognitivas y educación básica
+
+*"Ability gaps between individuals and across socioeconomic groups open up at early ages, for both cognitive and noncognitive skills." (Cunha y Heckman 2007, p. 32).*
+
+La educación no es el único derecho que, históricamente, se le ha negado a la población indígena. Sin embargo, sí es uno de los más cruciales, debido a dos características esenciales del proceso educativo. Además del periodo crítico para el desarrollo de habilidades cognitivas (incluyendo el lenguaje), este proceso presenta dos características importantes: complementariedad dinámica y autoproductividad (Cunha y Heckman 2007; Heckman y Mosso 2014).
+
+Si tomamos el modelo de formación de capital humano de Cunha y Heckman (2007), tenemos que el stock de habilidades en el periodo *t+1* ($\theta_{t+1}$) depende, esencialmente, de tres factores: las características parentales ($h$), el stock de habilidades en *t* ($\theta_t$) y la inversión en capital humano en *t* ($I_t$).
+
+\begin{center}
+$\theta_{t+1} = f_t(h, \theta_t, I_t)$
+\end{center}
+
+La complementariedad dinámica se refiere a que mayores habilidades en un periodo incrementan la productividad de la inversión educativa en el periodo siguiente: esto es que $\frac{\partial^2 f_t}{\partial \theta_t I_t} > 0$. La autoproductividad significa que un mayor nivel de habilidades en un periodo incrementan el nivel de habilidades en el siguiente periodo: es decir, que $\frac{\partial f_t}{\partial \theta_t} > 0$ (Cunha y Heckman 2007; Heckman y Mosso 2014).
+
+Esto implica que rezagos en la educación inicial y básica no solo tienen consecuencias inmediatas en el aprendizaje de las niñas y los niños, sino que, además, tiene un impacto negativo sobre sus habilidades y su capacidad de aprender con el paso de los años.
+
+Existe una amplia literatura al respecto (Elango, et al. 2016), pero, por ejemplo, Chetty, et al. (2011) demuestran que determinados factores de la educación inicial tienen efectos importantes en el largo plazo a partir del *Project STAR*. Haber asistido a un grupo pequeño en Kinder incrementa la probabilidad de asistir a la universidad, adquirir una propiedad y tener mayores ahorros para el retiro. Mayores niveles de experiencia de sus maestras y haber pertenecido a un grupo con niñas y niños con mejores resultados promedio tienen un impacto positivo sobre sus ingresos al cumplir 27 años (Chetty, et al. 2011).
+
+Asimismo, Carneiro, et al. (2019) encuentran que una intervención de bajo costo de sesiones parentales para madres y padres con bebés de 0 a 5 años pueden incrementar el vocabulario y habilidades socio-emocionales de las niñas y los niños 3 años después del experimento.
+
+Al respecto de la educación básica, De Hoyos, Estrada y Vargas (2018) demuestran que los resultados en pruebas estandarizadas durante la educación primaria son buenos predictores no solo de aprendizajes en secundaria y preparatoria, sino de tener un empleo posteriormente.
+
+## 2.3. Un programa para la educación indígena
+
+*"Living on 99 cents a day means you have limited acces to information -newspapers, television and books all cost money- and so you often just don't know certain facts that the rest of the world take as given, like, for example, that vaccines can stop your child from getting measles. It means living in a world whose institutions are not built for someone like you." (Banerjee y Duflo 2011, p. ix).*
+
+Si bien no existe un programa social en México que se concentre en la educación inicial indígena, sí existió uno para la educación básica: el Programa de Inclusión y Equidad Educativa coordinado por la SEP. Este programa surgió en 2014 como fusión de siete programas presupuestarios: cinco de educación básica, uno de media superior y uno de superior (MOCYR, 2018). Esto explica que, dentro de un solo programa, se concentran seis componentes: i) apoyo a escuelas de educación indígena, ii) apoyo a centros educativos para migrantes, iii) apoyo a servicios de educación especial, iv) apoyo a escuelas de educación telesecundaria, v) apoyo a Centros de Atención a Estudiantes con Discapacidad (CAED) de educación media superior y vi) apoyo a Instituciones Públicas de Educación Superior (IPES) para la inclusión de estudiantes con discapacidad o en contextos de vulnerabilidad.
+
+El presente estudio se enfoca únicamente en el componente de apoyo a escuelas de educación indígena, a cargo de la Dirección General de Educación Indígena de la Subsecretaría de Educación Básica. En el diagnóstico del programa, se identifica que el problema público que atiende es una "inadecuada oferta educativa a las diversas necesidades de las niñas, los niños y los jóvenes en contexto vulnerable" (SEP 2014; p. 21). Así, la población objetivo se definió como "todas las escuelas de Educación Básica que ofrecen los servicios de educación a indígenas, migrantes, educación especial y telesecundarias que decidan participar en el programa" (SEP 2014, p. 25).
+
+Sin embargo, por otro lado, las Reglas de Operación (ROP) del programa definen que los beneficiarios son los gobiernos estatales y la Autoridad Educativa Federal en la Ciudad de México (AEFCM) que decidan participar voluntariamente y cuyas Autoridades Educativas Locales (AEL) atiendan escuelas de educación indígena, centros de educación migrante y servicios públicos de educación especial, para el caso del nivel básico (DOF, 2019).
+
+Las ROP establecen que el objetivo específico del componente de educación indígena es "beneficiar a escuelas de educación indígena con acciones de fortalecimiento académico y contextualización" (DOF 2019, p. 9). Asimismo, contemplan la entrega de tres tipos de bienes y servicios: apoyos técnicos, apoyos financieros y gastos de operación local.
+
+El apoyo técnico se refiere a asesoría y acompañamiento para cumplir con la normatividad que regía al programa, así como para la ejecución de acciones para la mejora educativa. El gasto de operación local se refiere al 3% de los subsidios transferidos, que podrían utilizarse para cubrir gastos de operación estatales. Los apoyos financieros anuales se determinarían de acuerdo con "los objetivos del Programa para la Inclusión y la Equidad Educativa y los criterios de distribución establecidos por la Dirección General de Desarrollo Curricular (DGDC) y la DGEI" (DOF 2019, p. 14).
+
+Básicamente, el programa entregaba subsidios a las escuelas primarias de educación indígena que lo solicitan (a través de las AEL), que podían tener como destino (DOF 2019):
+
+\begin{enumerate}
+\item Acciones para el fortalecimiento académico: diplomados, congresos, seminarios, viáticos y transporte, subsidios para educación continua de docentes indígenas, asesoría y asistencia técnica.
+\item Acciones de contextualización: adaptación de contenidos y materiales, diseño de métodos y estrategias de enseñanza, ejecución de programas de lectura y escritura en lengua indígena y compra de materiales educativos.
+\end{enumerate}
+
+Al respecto de las "acciones de contextualización", Duarte, Moreno y Gargiulo (2011) afirman que la conexión a servicios de electricidad, telefonía, agua potable, desagüe y baños son determinantes para el logro de los estudiantes en pruebas de lenguaje y matemáticas. Además, Barret, et al. (2019) señalan que instalar protección frente a desastres naturales, acceso a servicios básicos (luz, agua, saneamiento y comunicaciones), espacios para recreación al aire libre y condiciones físicas buenas y seguras en las escuelas son elementos que tienen un impacto positivo sobre la asistencia escolar de alumnos y maestros, la salud de los alumnos en la escuela y la probabilidad de que los maestros se mantengan en dicha profesión.
+
+> *"Investments in school infraestructure and the physical conditions for learning are not luxury but a need".* (Barret, et al. 2019, p. 13).
+
+No solo la infraestructura de las escuelas importan, sino también la adquisición de material educativo, como los libros de texto. Evans, et al. (2010) demuestran que las niñas y niños que crecen en hogares con muchos libros adquieren, en promedio, tres años más de escolaridad que niñas y niños en hogares sin libros.
+
+Sin embargo, Glewwe, Kremer y Moulin (2009) argumentan que los estudiantes con peores antecedentes académicos no se benefician de la adquisición de libros de texto en las escuelas. De hecho, el programa en que se basan y que entregó libros de texto aleatoriamente en Kenya no tuvo un impacto sobre los aprendizajes en el agregado.
+
+Asimismo, sobre este tipo de acciones *input-based*, De Hoyos, Holland y Troiano (2015) demuestran que políticas basadas en incrementar el número de docentes por grupo y su salario, mejorar la infraestructura escolar e implementar el uso de computadoras no llevaron a mejores resultados en pruebas estandarizadas en el caso de Argentina.
+
+> *"This is not to say that education inputs are not important in the learning process, but their impact is limited and seems to dismish over time because it is subject to the systems ability to use them in an effective way".* (De Hoyos, Holland y Troiano 2015).
+
+Es decir, las políticas basadas en la adquisición y mejora de infraestructura educativa dependen de la capacidad institucional y docente para transformarla en el aprendizaje de los estudiantes. Esto está fuertemente ligado con la relevancia que tendrían las "acciones para el fortalecimiento académico".
+
+Las "acciones para el fortalecimiento académico" del Programa para la Inclusión y la Equidad Educativa se podrían utilizar para subsidiar la formación continua de docentes. Mejorar la calidad docente puede tener un impacto importante sobre los aprendizajes (Rivkin, Hanushek y Kain 2005; Bruns y Luque 2015), porque son el principal insumo del proceso educativo. Hanushek, Piopiunik y Wiederhold (2014) demuestran que las habilidades cognitivas de los docentes están altamente correlacionadas con los resultados de los estudiantes.
+
+Sin embargo, es importante delimitar que las ROP del programa no permiten delimitar exactamente a qué tipo de seminarios, conferencias y viáticos se refiere y, por lo tanto, no es posible garantizar que dichas actividades tengan un impacto efectivo sobre la calidad docente.
+
+En conclusión, las transferencias del programa bien podrían tener un impacto positivo sobre los aprendizajes de los alumnos de escuelas indígenas. Sin embargo, es también probable que estos subsidios no sean suficientes; sobre todo en contextos donde hubiera docentes con menor nivel pedagógico o acervo de capital humano y las "acciones para el fortalecimiento académico" no hubieran sido suficientes para mejorar la formación continua de docente.
+
+Bajo el contexto en el que hablar una lengua indígena podría dificultar el proceso de alfabetización y tomando en cuenta que el proceso educativo tiene un periodo crítico durante la infancia y que presenta las características denominadas como complementariedad dinámica y autoproductividad, se vuelve relevante analizar el impacto del programa para mejorar los aprendizajes de la lengua española entre la población indígena, especialmente en el nivel básico.
+
+
+\newpage
+
+
+# 3. Presentación de Variables y Análisis Exploratorio
+
+## 3.1. Analfabetismo, población indígena y características sociodemográficas
+
+Para realizar el análisis empírico de la primer hipótesis, se utilizaron cifras del Censo de Población 2010 y la Encuesta Intercensal 2015 que realizan el Instituto Nacional de Estadística y Geografía (INEGI) (se excluye de esta parte del análisis el Censo de Población 2020, ya que, para el momento de escribir este documento, no se han publicado las estimaciones 2020 de pobreza del CONEVAL). La información se encontraba a nivel individuo; sin embargo, se colapsó en promedios y porcentajes a nivel municipal, de tal forma que todo el proyecto analiza información sobre un total de 2,445 municipios.
+
+De estas bases, se extrajeron las variables del porcentaje de analfabetismo, de población que habla lengua indígena, de mujeres, de asistencia escolar y de localidades rurales y los promedios de edad y escolaridad. Para construir el porcentaje de mujeres, se construyó una dummy de mujer a partir de la variable sexo y, para el porcentaje de localidades rurales, se construyó una dummy de localidad rural si el tamaño de la localidad era menor a 2,500 personas.
+
+Para incorporar información de otros controles, se utilizó la base de la Medición Multidimensional de la Pobreza del Consejo Nacional de Evaluación de la Política de Desarrollo Social (CONEVAL). Así, se obtuvieron los porcentajes de pobreza y de pobreza extrema, de población con ingreso inferior a la línea de bienestar y bienestar mínimo, de población con carencia por acceso a los derechos sociales (educación, salud, vivienda, servicios básicos en la vivienda y alimentación), las cifras de población y el coeficiente de Gini a nivel municipal.
+
+A continuación, se muestran algunas estadísticas descriptivas de estas variables en 2010 y 2015:
+
+
+\newpage
+\blandscape
+
+```{r results="asis", echo=FALSE}
+stargazer(subset(datos, anio==2010, select=-c(mun, anio, ent, esc_14, esc_15, esc_16, esc_17, esc_18, esc_19)), type="latex", digits=2, title = "Estadísticas descriptivas en 2010", covariate.labels = c("Mujeres", "Edad", "Alfabetismo", "Hablan lengua indígena", "Asistencia escolar", "Nivel académico", "Rural", "Pobreza", "Pobreza extrema", "Población", "Rezago educativo", "Carencia en salud", "Carencia en seguridad social", "Carencia en vivienda", "Car. en servicios de vivienda", "Carencia alimentaria", "Ingreso inferior a LB", "Coeficiente de Gini", "Programa"), font.size="footnotesize", header=FALSE)
+```
+
+\elandscape
+\newpage
+
+
+\newpage
+\blandscape
+
+```{r results="asis", echo=FALSE}
+stargazer(subset(datos, anio==2015, select=-c(mun, anio, ent, esc_14, esc_15, esc_16, esc_17, esc_18, esc_19)), type="latex", digits=2, title = "Estadísticas descriptivas en 2015", covariate.labels = c("Mujeres", "Edad", "Alfabetismo", "Hablan lengua indígena", "Asistencia escolar", "Nivel académico", "Rural", "Pobreza", "Pobreza extrema", "Población", "Rezago educativo", "Carencia en salud", "Carencia en seguridad social", "Carencia en vivienda", "Car. en servicios de vivienda", "Carencia alimentaria", "Ingreso inferior a LB", "Coeficiente de Gini", "Programa"), font.size="footnotesize", header=FALSE)
+```
+
+\elandscape
+\newpage
+
+
+En 2015, los municipios de México tienen una tasa de alfabetismo promedio del 87.17% y cuentan con un porcentaje promedio de 19.24% de población que habla lengua indígena. El municipio con mayor porcentaje de analfabetismo es Cochoapa el Grande, ubicado en el estado de Guerrero. Encabezaba la lista en 2010 y se mantuvo en 2015.
+
+Personalmente, tuve la oportunidad de conocerlo hace unos 6 años y me conmueve encontrarlo nuevamente en estas cifras. Es un ejemplo de cómo el crecimiento del país se ha olvidado de estos municipios perdidos en la sierra; sin infraestructura para entrar y salir (y mucho menos para llevar y sacar productos y materias primas), sin escuelas ni hospitales, sin servicios públicos básicos y sin acceso al desarrollo.
+
+En el caso del porcentaje de población que habla lengua indígena, los tres municipios que encabezan la lista se encuentran en el estado de Chiapas: Santiago el Pinar, San Juan Cancuc, Chalchihuitán. Prácticamente, toda su población habla lengua indígena.
+
+La relación entre el alfabetismo y el indigenismo es bastante clara. Cuanto mayor es el porcentaje de población que habla lengua indígena, menor es el nivel de alfabetismo en el municipio. Si bien esto no es evidencia para hacer inferencia causal, sí es una primera intuición sobre el vínculo inverso que podría existir entre ambas variables.
+\break
+
+
+```{r echo=FALSE}
+theme_update(plot.title = element_text(hjust = 0.5))
+
+ggplot(subset(datos, anio==2015), aes(x=hlengua, y=alfabet)) +
+  geom_point(colour="dodgerblue4") +
+  geom_smooth(method="lm", formula=y~x, colour="darkred") +
+  ggtitle("Gráfica 1. Relación entre el porcentaje de hablantes de lengua indígena\ny el nivel de alfabetismo por municipio en 2015") +
+  xlab("Porcentaje de hablantes de lengua indígena") + ylab("Porcentaje de alfabetismo")
+```
+
+
+A continuación, se observa la distribución del alfabetismo entre los municipios de México: parece ser que la distribución se ha movido hacia una mejor posición entre 2010 y 2015. Sin embargo, aún se observan muchos municipios rezagados en el lado izquierdo de la distribución.
+
+
+```{r echo=FALSE}
+ggplot(datos, aes(x=alfabet, fill=factor(anio))) +
+  geom_histogram(data=subset(datos, anio==2010), bins=50, alpha=0.4) +
+  geom_histogram(data=subset(datos, anio==2015), bins=50, alpha=0.4) +
+  scale_fill_manual(values=c("#3333FF", "#669900")) +
+  ggtitle("Gráfica 2. Densidad del alfabetismo en los municipios de México") +
+  labs(x="Porcentaje de alfabetismo", y="Conteo", fill="Año")
+```
+
+
+En lo que respecta a la distribución de la población que habla lengua indígena, no parece haber cambiado mucho. Esto podría ser problemático a la hora de estimar el modelo empírico, debido a que la estrategia de identificación se basa en la estimación de diferencias temporales. Si la variable no cambia a lo largo del tiempo, no se podría medir su efecto utilizando un modelo de efectos fijos o efectos aleatorios.
+
+
+```{r echo=FALSE}
+ggplot(datos, aes(x=hlengua, fill=factor(anio))) +
+  geom_histogram(data=subset(datos, anio==2010), bins=50, alpha=0.4) +
+  geom_histogram(data=subset(datos, anio==2015), bins=50, alpha=0.4) +
+  scale_fill_manual(values=c("#3333FF", "#669900")) +
+  ggtitle("Gráfica 3. Densidad de hablantes de lengua indígena\nen los municipios de México") +
+  labs(x="Porcentaje de hablantes de lengua indígena", y="Conteo", fill="Año")
+```
+
+
+Para verificar si las variables cambiaron en el tiempo de manera significativa; a continuación, se muestra una tabla de balance con la prueba de hipótesis de medias: la hipótesis nula se refiere a la igualdad de medias.
+
+
+\newpage
+\blandscape
+
+```{r results="asis", echo=FALSE}
+temp <- datos %>%
+  subset(anio!=2005 & anio!=2020) %>%
+  select(anio, alfabet, hlengua, mujer, edad, asisten, nivacad, rural, pobreza, pobreza_ext, pob, rezed, salud, seg_soc, vivienda, serv_viv, alim, inf_lb, gini) %>%
+  group_by(anio) %>%
+  summarize(alfabet = mean(alfabet),
+            hlengua = mean(hlengua),
+            mujer = mean(mujer),
+            edad = mean(edad),
+            asisten = mean(asisten),
+            nivacad = mean(nivacad),
+            rural = mean(rural),
+            pobreza = mean(pobreza),
+            pobreza_ext = mean(pobreza_ext),
+            pob = mean(pob),
+            rezed = mean(rezed),
+            salud = mean(salud),
+            seg_soc = mean(seg_soc),
+            vivienda = mean(vivienda),
+            serv_viv = mean(serv_viv),
+            alim = mean(alim),
+            inf_lb = mean(inf_lb),
+            gini = mean(gini)) %>%
+  ungroup() %>%
+  select(-anio)
+
+names <- c("Alfabetismo", "Hablan lengua indígena", "Mujeres", "Edad", "Asistencia escolar", "Nivel académico", "Rural", "Pobreza", "Pobreza extrema", "Población", "Rezago educativo", "Carencia en salud", "Carencia en seguridad social", "Carencia en vivienda", "Car. en servicios en vivienda", "Carencia alimentaria", "Ingreso inferior a LB", "Desigualdad")
+
+temp <- temp %>%
+  t() %>%
+  data.frame(names)
+
+colnames(temp) <- c("Medias_2010", "Medias_2015", "Variables")
+
+temp <- temp %>%
+  select(Variables, Medias_2010, Medias_2015)
+
+temp <- temp %>%
+  mutate(Diferencia = Medias_2015 - Medias_2010) %>%
+  mutate(P_Value = c(t.test(alfabet ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(hlengua ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(mujer ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(edad ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(asisten ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(nivacad ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(rural ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(pobreza ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(pobreza_ext ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(pob ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(rezed ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(salud ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(seg_soc ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(vivienda ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(serv_viv ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(alim ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(inf_lb ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value,
+                     t.test(gini ~ anio, subset(datos, anio!=2005 & anio!=2020), conf.level = 0.95)$p.value))
+
+temp %>%
+  kbl(digits=4, caption = "Diferencia de medias entre 2010 y 2015") %>%
+  kable_classic_2(full_width = F)
+```
+
+\elandscape
+\newpage
+
+
+Estadísticamente, las variables que muestran un cambio significativo entre 2010 y 2015 fueron las medias de edad, nivel académico y desigualdad y los porcentajes de alfabetismo, mujeres, asistencia escolar, pobreza, pobreza extrema, rezago educativo y todas las carencias sociales excepto servicios en la vivienda.
+
+Nuevamente, el cambio de 19.36% a 19.24% en el porcentaje de la población que habla lengua indígena parece no ser significativo. Si bien esto podremos comprobarlo también más adelante con las regresiones, esta prueba de balance deja una advertencia sobre la precisión y la veracidad de las estimaciones en el próximo capítulo.
+
+## 3.2. Cobertura del Programa de Inclusión y Equidad Educativa
+
+Para realizar el análisis empírico de la segunda hipótesis, se utilizó la misma base de datos anterior, incorporando el Conteo de Población 2005 y el Censo de Población 2020, así como información sobre los municipios que recibieron recursos por parte del componente de educación indígena del Programa de Inclusión y Equidad Educativa de 2014 a 2019. Desgraciadamente, esta información se limita a señalar qué municipios percibieron recursos por parte del programa durante cada ejercicio fiscal, no se cuenta con información de la magnitud de estas transferencias a cada municipio y tampoco se cuenta con información desglosada por escuelas.
+
+Esta información se obtuvo a través de la solicitud número 0001100442220 y el recurso de revisión RRA11287/20, mediante la Plataforma Nacional de Transparencia del Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales (INAI). Cabe destacar que la SEP señaló que los beneficiarios directos del programa eran las Entidades Federativas y que, por lo tanto, no cuenta con información presupuestaria desglosada por escuela y municipio. Sin embargo, para atender a la solicitud de información, se recolectó la información emitida por las Entidades Federativas al cierre de la cuenta pública de cada ejercicio fiscal para conocer qué municipios fueron beneficiados en cada caso.
+
+Es posible que existan imprecisiones o errores de registro en la base de datos, toda vez que la captura de la información presentaba una importante heterogeneidad: por ejemplo, en algunos casos no se reportaba el municipio, sino la localidad o el nombre de la escuela. Para ello, se tuvo que limpiar la base de datos haciendo correcciones manuales para identificar el código del municipio correspondiente.
+
+Como se puede observar a continuación, los estados del sureste, así como algunos municipios de Puebla, Oaxaca y otros estados por donde pasa la Sierra Madre Occidental concentran un alto porcentaje de población hablante de lenguas indígenas. Por otro lado, a pesar de algunas divergencias, la cobertura municipal del Programa de Inclusión y Equidad Educativa pinta un mapa similar, lo cual no es una sorpresa, ya que los subsidios están destinados justamente para apoyar a las escuelas de educación indígena. Entre 2014 y 2019, el 33.36% de los municipios percibieron subsidios por parte del programa (817 municipios).
+
+
+```{r results="asis", echo=FALSE, warning=FALSE}
+temp <- subset(grupos, anio == 2010 & grupo == "edad_6a11")
+temp <- temp %>% select(mun, hlengua)
+temp <- rename(temp, region = mun)
+temp <- rename(temp, value = hlengua)
+
+mxmunicipio_choropleth(temp, 
+                       num_colors = 1,
+                       title = "Mapa 1. Porcentaje de niñas y niños de 6 a 11 años que habla lengua\n indígena por municipio en 2010",
+                       legend = "%")
+
+temp <- subset(grupos, anio == 2015 & grupo == "edad_6a11")
+temp <- temp %>% select(mun, trat)
+temp <- rename(temp, region = mun)
+temp <- rename(temp, value = trat)
+
+mxmunicipio_choropleth(temp,
+                       title = "Mapa 2. Cobertura del Programa de Inclusión y Equidad Educativa\nentre 2014 y 2019")
+```
+
+
+Ahora, si observamos la distribución del porcentaje de población que habla lengua indígena entre los municipios con y sin subsidios del programa, queda más claro aún que la distribución del programa no es aleatoria, sino que se encuentra focalizada en las localidades con mayor porcentaje de población indígena.
+
+Es cierto que existe una mucho mayor concentración de municipios con poco porcentaje de población indígena (alrededor del 0%) pertenecientes al grupo de control. Sin embargo, es importante y, hasta cierto punto sorpresivo, que la distribución alrededor del extremo derecho concentra distribuciones similares de municipios de control y tratamiento. Es decir, existe un número importante de municipios con alto porcentaje de población indígena (entre 75% y 100%) que no formó parte del programa.
+\break
+
+
+```{r results="asis", echo=FALSE, warning=FALSE}
+ggplot(subset(grupos, anio==2015 & grupo=="edad_6a11"), aes(x=hlengua, fill=factor(trat))) +
+  geom_density(data=subset(grupos, trat==1 & anio==2015 & grupo=="edad_6a11"), alpha=0.4) +
+  geom_density(data=subset(grupos, trat==0 & anio==2015 & grupo=="edad_6a11"), alpha=0.4) +
+  scale_fill_manual(values=c("#3333FF", "#669900")) +
+  labs(title="Gráfica 4. Hablantes de lengua indígena de 6 a 11 años\nentre municipios de control y tratamiento",
+       x="Porcentaje de hablantes de lengua indígena de 6 a 11 años", y="Densidad",
+       fill="Pertenencia al programa") +
+  theme_bw()
+
+ggplot(subset(grupos, anio==2015 & grupo=="edad_6a11"), aes(x=hlengua, fill=factor(trat))) +
+  geom_density(data=subset(grupos, trat==1 & anio==2015 & grupo=="edad_6a11"), alpha=0.4) +
+  geom_density(data=subset(grupos, trat==0 & anio==2015 & grupo=="edad_6a11"), alpha=0.4) +
+  scale_fill_manual(values=c("#3333FF", "#669900")) +
+  labs(title="Gráfica 5. Hablantes de lengua indígena de 6 a 11 años\nentre municipios de control y tratamiento (entre 0% y 25%)",
+       x="Porcentaje de hablantes de lengua indígena de 6 a 11 años", y="Densidad",
+       fill="Pertenencia al programa") +
+  theme_bw() + xlim(0, 25)
+
+ggplot(subset(grupos, anio==2015 & grupo=="edad_6a11"), aes(x=hlengua, fill=factor(trat))) +
+  geom_density(data=subset(grupos, trat==1 & anio==2015 & grupo=="edad_6a11"), alpha=0.4) +
+  geom_density(data=subset(grupos, trat==0 & anio==2015 & grupo=="edad_6a11"), alpha=0.4) +
+  scale_fill_manual(values=c("#3333FF", "#669900")) +
+  labs(title="Gráfica 6. Hablantes de lengua indígena de 6 a 11 años\nentre municipios de control y tratamiento (entre 75% y 100%)",
+       x="Porcentaje de hablantes de lengua indígena de 6 a 11 años", y="Densidad",
+       fill="Pertenencia al programa") +
+  theme_bw() + xlim(75, 100)
+```
+
+
+Será importante visualizar las diferencias entre los municipios que formaron parte del programa y los que no previo a su ejecución. En los municipios del programa, el 29.97% de la población de 6 a 11 años hablaban una lengua indígena y contaban con un porcentaje de alfabetismo de 72.12% en promedio, el grupo de control solo tiene el 5.99% de población de 6 a 11 años indígena y 79.27% de alfabetismo en 2010.
+
+En promedio, los municipios del programa son prácticamente diferentes en todo a los municipios del grupo de control, excepto en el porcentaje de mujeres, población en localidades rurales, carencia en acceso a servicios de salud y desigualdad. Su población tiene menor edad y nivel académico y mayor pobreza, pobreza extrema, asistencia escolar, población, rezago educativo, carencias sociales e ingresos inferiores a la línea de bienestar mínimo.
+
+
+\newpage
+\blandscape
+
+
+```{r results="asis", echo=FALSE}
+temp <- subset(grupos, anio == 2010 & grupo == "edad_6a11")
+
+tabla <- temp %>%
+  select(alfabet, hlengua, mujer, asisten, nivacad, rural, pobreza, pobreza_ext, pob, rezed, salud, seg_soc, vivienda, serv_viv, alim, inf_lb, gini, trat) %>%
+  group_by(trat) %>%
+  summarize(alfabet = mean(alfabet),
+            hlengua = mean(hlengua),
+            mujer = mean(mujer),
+            asisten = mean(asisten),
+            nivacad = mean(nivacad),
+            rural = mean(rural),
+            pobreza = mean(pobreza),
+            pobreza_ext = mean(pobreza_ext),
+            pob = mean(pob),
+            rezed = mean(rezed),
+            salud = mean(salud),
+            seg_soc = mean(seg_soc),
+            vivienda = mean(vivienda),
+            serv_viv = mean(serv_viv),
+            alim = mean(alim),
+            inf_lb = mean(inf_lb),
+            gini = mean(gini)) %>%
+  ungroup() %>%
+  select(-trat)
+
+names <- c("Alfabetismo", "Hablan lengua indígena", "Mujeres", "Asistencia escolar", "Nivel académico", "Rural", "Pobreza", "Pobreza extrema", "Población", "Rezago educativo", "Carencia en salud", "Carencia en seguridad social", "Carencia en vivienda", "Car. en servicios en vivienda", "Carencia alimentaria", "Ingreso inferior a LB", "Desigualdad")
+
+tabla <- tabla %>%
+  t() %>%
+  data.frame(names)
+
+colnames(tabla) <- c("Control", "Programa", "Variables")
+
+tabla <- tabla %>%
+  select(Variables, Control, Programa)
+
+tabla <- tabla %>%
+  mutate(Diferencia = Programa - Control) %>%
+  mutate(P_Value = c(t.test(alfabet ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(hlengua ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(mujer ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(asisten ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(nivacad ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(rural ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(pobreza ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(pobreza_ext ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(pob ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(rezed ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(salud ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(seg_soc ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(vivienda ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(serv_viv ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(alim ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(inf_lb ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value,
+                     t.test(gini ~ trat, subset(temp, anio==2010), conf.level = 0.95)$p.value))
+
+tabla %>%
+  kbl(digits=4, caption = "Diferencia de medias entre municipios de control y del programa en 2010 (población de 6 a 11 años)") %>%
+  kable_classic_2(full_width = F)
+```
+
+
+\elandscape
+\newpage
+
+
+Debido a todo lo anterior, queda claro que una simple diferencia de medias entre los municipios de control y los del programa arrojaría una estimación sesgada. Este sesgo puede (y seguramente es el caso) venir de dos fuentes: diferencias en observables y diferencias en no observables.
+
+Para controlar por las diferencias en observables, se utilizarán controles sociodemográficos entre 2010 y 2015 (el conjunto de variables que componen la tabla anterior), pero la más importante se refiere al porcentaje de la población que habla lengua indígena, ya que determina la distribución del programa.
+
+Para controlar por las diferencias en no observables y como respuesta al problema de autoselección, se utilizará el método de Diferencias en Diferencias para estimar el impacto del programa, respecto del escenario hipotético en el que los municipios del programa no hubieran percibido los subsidios. De esta forma, se busca reforzar el supuesto de independencia condicional.
+
+
+\newpage
+
+
+# 4. Estrategia Empírica
+
+## 4.1. Efectos Fijos y Aleatorios
+
+*"It's turtles all the way down".*
+
+Como ya se mencionó anteriormente, no basta realizar una comparación entre el alfabetismo (o analfabetismo) entre la población que habla lengua indígena y la que no, ya que existen muchos sesgos de por medio vinculados con variables ya antes referidas: pobreza, desigualdad, ingresos, educación, etc. Por ello, no solo se buscará controlar estas variables introduciéndolas en el modelo, sino que se realizará una estimación de efectos fijos para controlar por cualquier otra variable que pudiera causar sesgo, pero que no cambie a lo largo del tiempo en cada municipio. El planteamiento es el siguiente:
+
+\begin{center}
+$Y_{i,t} = \beta_0 + \beta_1 X_{i,t} + \beta_2 Z_{i,t} + \beta_3 A_i + U_{i,t}$
+\end{center}
+
+Donde $Y_{i,t}$ es el porcentaje de alfabetismo en el municipio i y año t, $X_{i,t}$ es el porcentaje de población que habla lengua indígena en el municipio i y año t, $Z_{i,t}$ es un vector de controles en el municipio i y año t, $A_i$ es una variable no observable para el municipio i que no cambia en el tiempo y $U_{i,t}$ es el error de estimación en el municipio i y año t.
+
+Si a este planteamiento le restamos la media de cada variable en el tiempo, se produce la siguiente ecuación:
+
+\begin{center}
+$(Y_{i,t} - \bar{Y}_{i}) = \beta_1 (X_{i,t} - \bar{X}_{i}) + \beta_2 (Z_{i} - \bar{Z}_{i}) + \beta_3 (A_i - \bar{A}_i) + (U_{i,t} - \bar{U}_{i})$
+\end{center}
+
+Esta es la transformación de efectos fijos o transformación intragrupal. Debido a que la variable $A_i$ no cambia en el tiempo, se elimina de la especificación. Es decir, aunque no sea observable, su varianza está capturada en el modelo de efectos fijos para cada municipio y, por lo tanto, no causa sesgo en la estimación (Wooldridge 2015).
+
+Otra forma de hacer esto es utilizando un modelo de efectos aleatorios: en este caso, se utiliza un elemento $\theta = 1 - (\frac{\sigma_u^2} {\sigma_u^2 + T\sigma_a^2}) ^ \frac{1}{2}$ para realizar la transformación del planteamiento de manera ponderada (Wooldridge 2015).
+
+A partir de ello, nos quedamos con la siguiente estructura: $1 - \theta = (\frac{\sigma_u^2} {\sigma_u^2 + T\sigma_a^2}) ^ \frac{1}{2}$. Esto es equivalente a la proporción de la varianza que capta el modelo a través del error de estimación ($\sigma_u^2$) y del total de los errores "aleatorios" para cada municipio ($T\sigma_a^2$). Por lo tanto, $T\sigma_a^2$ es el componente que aporta homocedasticidad en los errores.
+
+Si $\theta$ tiende a 1, significa que la mayoría de esta varianza se agrupa en $\sigma_u^2$ y casi nada en $T\sigma_a^2$, por lo que resulta más preciso utilizar la versión heterocedástica del modelo de efectos fijos. Pero, si $\theta$ tiende a 0, significa que $T\sigma_a^2$ explica casi toda la varianza del modelo: esto es, los errores aleatorios. En este caso, el modelo degenera en Mínimos Cuadrados Ordinarios, toda vez que las variables omitidas que se controlaban con efectos fijos no explicaban nada del modelo.
+
+Entonces, la principal diferencia del modelo de efectos aleatorios respecto del de efectos fijos es que se sostiene sobre un gran supuesto: que $Cov(X_{i,t},A_i)=0$. Es decir, que el factor $A_i$, a diferencia del planteamiento de efectos fijos, no estaría causando sesgo por omisión. Sin embargo, al menos en el contexto de esta evaluación, este supuesto parece poco realista.
+
+Por ejemplo, volviendo al caso de Cochoapa el Grande, ¿por qué este era el municipio con mayor analfabetismo en 2005 (74%) y quince años después, en 2020, continúa ocupando la primer posición nacional (56%)? Claramente, hay algo ahí que persiste a lo largo de los años y de los sexenios. Entrar y salir de Cochoapa es muy difícil: si vas en carro (un privilegio de por sí) hay que dejarlo en la ciudad de Tlapa de Comonfort porque el camino se termina ahí. Posteriormente, debes de tomar un taxi o una camioneta de montaña para cruzar el camino hacia Cochoapa (o puedes intentarlo con tu auto, si es que llegas).
+
+Una vez ahí, la infraestructura de servicios básicos es muy precaria: hogares sin drenaje y sin luz, sin alumbrado público e incomunicados, porque no hay señal de celular y el único teléfono fijo del pueblo se encuentra en el palacio municipal que de noche se convierte en albergue para muchas personas que no tienen un techo para dormir. Impactan ahí la geografía, instituciones políticas, estructura demográfica, comercio, vías de transporte y comunicación, entre una larga lista de factores que escapan de las grandes mediciones nacionales de pobreza y de crecimiento.
+
+Son pequeños detalles que persisten y que impactan de manera importante sobre el desarrollo y que, por lo tanto, en este contexto pareciera relevante hacer un intento por disminuir su sesgo. Por ello, en adelante, se utilizará como principal referencia la especificación de efectos fijos para hacer inferencia causal y, en su caso, se presentarán modelos OLS Pooled y de efectos aleatorios solo para verificar la robustez en signo, magnitud y significancia de los resultados.
+
+## 4.2. Diferencias en Diferencias
+
+*"The first thing to realize about parallel universes... is that they are not parallel." (Angrist y Pischke 2009, p. 221)*
+
+El modelo de Diferencias en Diferencias es una extensión de los modelos para datos tipo panel, por lo que puede incorporar efectos fijos o aleatorios. Cuando la distribución del tratamiento no es aleatoria, pero existe un grupo de control y un grupo de tratamiento y, además, se cuenta con información de tipo panel para ambos grupos antes y después de la aplicación del tratamiento, es posible recurrir a una especificación de dobles diferencias. Esto es, incorporar la interacción entre la dummy del tratamiento y la dummy del año posterior a su aplicación.
+
+> *"The source of OVB [Omitted Variable Bias] when evaluating these policies must therefore be unobserved variables at the state and year level. In some cases, group-level omitted variables can be captured by group-level fixed effects, an approach that leads to the differences-in-differences identification strategy".* (Angrist y Pischke 2009, p. 227).
+
+Dado que la aplicación del programa no es aleatoria, una simple diferencia de medias entre grupos estaría sesgada como ya se discutió anteriormente. Incorporar la interacción de dobles diferencias permite estimar la diferencia entre la media del *outcome* de interés, en este caso alfabetismo, entre el grupo del programa y un contrafactual que no es precisamente el grupo de control, sino el escenario hipotético sobre qué hubiera pasado con el grupo del programa de haber seguido el mismo comportamiento que el grupo de control.
+
+El planteamiento es el siguiente:
+
+\begin{center}
+$Y_{i,t} = \beta_0 + \beta_1 P_{i} + \beta_2 Post_{t} + \beta_{DD} (P_{i} * Post_{t}) + U_{i,t}$
+\end{center}
+
+Donde $Y_{i,t}$ es el porcentaje de alfabetismo en el municipio i y año t, $P_{i}$ es una dummy que indica si el municipio i formó parte del programa, $Post_{t}$ es una dummy que indica si el año t es posterior a la aplicación del programa (en este caso, posterior a 2013), $P_{i} * Post_{t}$ es la interacción entre las dos variables anteriores y, por lo tanto, es una dummy que indica si el municipio i formó parte del programa y, además, si el año t es posterior a su aplicación y $U_{i,t}$ es el error de estimación en el municipio i y año t.
+
+De esta forma, el elemento de la interacción o doble diferencia ($P_{i} * Post_{t}$) captura el efecto del programa, siendo que:
+
+\begin{center}
+$\beta_{DD} = [E(Y_{i,t} | P_i=1, Post_{t}=1) - E(Y_{i,t} | P_i=1, Post_{t}=0)] - [E(Y_{i,t} | P_i=0, Post_{t}=1) - E(Y_{i,t} | P_i=0, Post_{t}=0)]$
+\end{center}
+
+Además, es posible incorporar efectos fijos a esta especificación para controlar por variables que no cambian en el tiempo aunque, idealmente, el modelo de Diferencias en Diferencias simple tendría que controlar la varianza necesaria de tal forma que no exista sesgo por variable omitidas.
+
+Dicho lo anterior, es importante señalar que el principal supuesto del modelo de diferencias en diferencias es denominado: tendencias paralelas. Esto es que el comportamiento del grupo de tratamiento o del programa seguiría la misma tendencia que el grupo de control, en ausencia del programa. Por lo tanto, podrían existir fuentes de sesgo (observables y no observables) que hagan que esto no suceda.
+
+Si bien no es posible comprobar o afirmar que esto sucede (i.e. es un supuesto), sí es posible verificar qué tan creíble es utilizando efectos placebo con periodos previos. En este caso, se utilizará la información de 2000 a 2010 para identificar si los grupos del programa y de control muestran comportamientos similares antes de la ejecución del programa.
+
+Para ello, se incorporarán dobles diferencias para cada año: las interacciones del programa con los años 2005 y 2010 serán los efectos placebo y las interacciones del programa con 2015 y 2020 estimarán su impacto. Idealmente, los coeficientes de los efectos placebo tendrían que ser pequeños y no significativos para que el supuesto de tendencias paralelas sea más creíble.
+
+
+\newpage
+
+
+# 5. Resultados
+
+## 5.1. El efecto de hablar una lengua indígena sobre el analfabetismo
+
+A continuación, se muestra la tabla de regresión con la estimación para cada especificación. El primer modelo se refiere a una regresión *pooled* con errores heterocedásticos. Los modelos dos y tres corresponden a efectos fijos y efectos aleatorios, respectivamente, incorporando errores clusterizados por municipio, ya que es factible pensar que no exista independencia entre determinado municipio en 2010 y ese mismo municipio en 2015.
+
+El coeficiente no cambia mucho entre modelos, lo cual es una buena noticia para la consistencia del resultado. En todos los casos, el coeficiente es negativo y significativo al 1%; la estimación puntual se encuentra entre –0.038 y –0.052.
+
+Debido a la significancia en los coeficientes de los modelos estimados, es factible pensar que sí existe un nivel de varianza en la diferencia temporal del porcentaje de población que habla lengua indígena, tal que permite estimar su efecto causal sobre el alfabetismo, controlando por variables incluidas como controles y por aquellas omitidas que podrían no estar cambiando en el tiempo.
+
+Caeteris paribus, un incremento de un punto en el porcentaje de la población que habla lengua indígena causa un decremento promedio de 0.052 puntos en el porcentaje de alfabetismo de los municipios de México, independientemente del nivel de pobreza, desigualdad, género, urbanización, población, rezago educativo y carencias sociales, nivel académico, asistencia escolar y bienestar económico.
+
+Adicionalmente, se observa que existe una relación negativa entre los promedios de edad y desigualdad y los porcentajes de mujeres, asistencia escolar, pobreza extrema, población, rezago educativo, todas las carencias sociales (excepto seguridad social) y población con ingreso inferior a la línea de bienestar con el nivel de alfabetismo. Mientras que el nivel académico, localidades rurales, pobreza y carencia por acceso a seguridad social se asocian positivamente con el alfabetismo en México, sin que estos resultados tengan una interpretación causal.
+
+Para observar mejor este resultado, a continuación, se muestra el efecto parcial de hablar una lengua indígena sobre el alfabetismo a partir de simular la estimación del modelo de efectos fijos por el método de *partial-out*.
+\break
+
+```{r include=FALSE}
+temp <- subset(datos, anio != 2005 & anio != 2020)
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+# (a) Hablar lengua indígena contra controles.
+
+partial1 <- plm(hlengua ~ mujer + edad + asisten + nivacad + rural + pobreza + pobreza_ext + log(pob) + rezed + salud + seg_soc + vivienda + serv_viv + alim + inf_lb + gini + factor(anio), p_datos, model = "within")
+
+# (b) Alfabetismo contra residuales.
+
+p_datos$res <- residuals(partial1)
+partial2 <- lm(alfabet ~ res, data=p_datos)
+summary(partial2)
+
+p_datos <- as.data.frame(p_datos)
+```
+
+
+```{r results="asis", echo=FALSE, warning=FALSE}
+ggplot(p_datos, aes(x=res, y=alfabet)) +
+  geom_point(colour="dodgerblue4") +
+  geom_smooth(method="lm", formula= y ~ x, colour="darkred") +
+  ggtitle("Gráfica 7. Efecto parcial de hablar una lengua indígena sobre el alfabetismo") +
+  labs(x="Hablar lengua indígena (residuales del partial-out)", y="Alfabetismo")
+```
+
+
+```{r include=FALSE}
+temp <- subset(datos, anio != 2005 & anio != 2020)
+
+# 1. Pooled OLS.
+
+modelo1 <- lm(alfabet ~ hlengua + mujer + edad + asisten + nivacad + rural + pobreza + pobreza_ext + log(pob) + rezed + salud + seg_soc + vivienda + serv_viv + alim + inf_lb + gini, temp)
+cov1 <- vcovHC(modelo1, type="HC1")
+robust_se1 <- sqrt(diag(cov1))
+
+# 2. Efectos Fijos.
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+modelo2 <- plm(alfabet ~ hlengua + mujer + edad + asisten + nivacad + rural + pobreza + pobreza_ext + log(pob) + rezed + salud + seg_soc + vivienda + serv_viv + alim + inf_lb + gini + factor(anio), p_datos, model = "within")
+cov2 <- vcovCR(modelo2, type="CR1", cluster=p_datos$mun)
+robust_se2 <- sqrt(diag(cov2))
+
+# 3. Efectos Aleatorios
+
+modelo3 <- plm(alfabet ~ hlengua + mujer + edad + asisten + nivacad + rural + pobreza + pobreza_ext + log(pob) + rezed + salud + seg_soc + vivienda + serv_viv + alim + inf_lb + gini + factor(anio), p_datos, model = "random")
+cov3 <- vcovCR(modelo3, type="CR1", cluster=p_datos$mun)
+robust_se3 <- sqrt(diag(cov3))
+
+# Prueba de Hausman.
+
+phtest(modelo2, modelo3)
+```
+
+
+```{r results="asis", echo=FALSE}
+stargazer(modelo1, modelo2, modelo3,
+          title="Modelos de regresión lineal",
+          se=list(robust_se1, robust_se2, robust_se3),
+          omit=c("anio"),
+          omit.stat=c("f"),
+          font.size="scriptsize",
+          column.sep.width="0pt",
+          model.names=F,
+          column.labels=c("Pooled OLS", "Efectos Fijos", "Efectos Aleatorios"),
+          add.lines=list(c("Errores", "Heterocedásticos", "Cluster", "Cluster"),
+                         c("Efectos", "No", "FE", "RE")),
+          covariate.labels = c("Hablan lengua indígena", "Mujeres", "Edad", "Asistencia escolar", "Nivel académico", "Rural", "Pobreza", "Pobreza extrema", "Log(Población)", "Rezago educativo", "Carencia en salud", "Carencia en seguridad social", "Carencia en vivienda", "Car. en servicios de vivienda", "Carencia alimentaria", "Ingreso inferior a LB", "Desigualdad"),
+          dep.var.labels="Alfabetismo", no.space=TRUE, header=FALSE)
+```
+
+
+\newpage
+
+
+## 5.2. El impacto del Programa de Inclusión y Equidad Educativa
+
+### 5.2.1. Diferencias en Diferencias
+
+En la siguiente tabla de regresión, se muestran los resultados de múltiples especificaciones de Diferencias en Diferencias para el grupo de niñas y niños entre 6 y 11 años: el periodo anterior al programa corresponde a 2010; para 2015, el programa llevaba, aproximadamente, dos años de operación y, para 2020, se agregarían cuatro años más.
+
+El primer modelo se refiere a una especificación de mínimos cuadrados ordinarios (OLS), el segundo incorpora efectos fijos por municipio y tiempo, el tercer modelo controla por el porcentaje de población que habla lengua indígena, el cuarto controla por el resto de variables socio-demográficas (solo se cuentan con cifras de pobreza multidimensional para 2010 y 2015) y el quinto es una especificación de efectos aleatorios. En todos los casos, se utilizan errores clusterizados por municipio.
+
+Para verificar la credibilidad del supuesto de tendencias paralelas, se incorporan estimaciones de Diferencias en Diferencias para 2005 y 2010, cuando aún no entraba en operación el Programa de Inclusión y Equidad Educativa. Por lo tanto, esta intervención placebo del programa no tendría que mostrar impacto alguno para poder suponer que los municipios del programa se pudieron haber comportado igual que los de control de 2010 a 2020.
+
+Todas las especificaciones arrojan resultados similares y todos significativos al 1%. En promedio, la presencia del Programa de Inclusión y Equidad Educativa incrementó el alfabetismo de cada municipio en 3.424 puntos porcentuales de 2010 a 2020: separando este efecto, el incremento fue mayor entre 2014 y 2015 (2.898 puntos porcentuales) que el del periodo 2016 a 2019 (0.526 puntos porcentuales). Esto no implica que el efecto del programa se redujo: en la gráfica 8, se observa que estos 0.526 puntos son, más bien, un incremento en el efecto acumulado.
+
+Al respecto del supuesto de tendencias paralelas, es importante señalar que, para 2005, se detecta una ligera diferencia de -0.839 puntos porcentuales significativa al 10%. Mientras tanto, el efecto placebo de 2010 carece de significancia estadística. Además, el coeficiente de diferencias en diferencias parece no cambiar mucho en signo, magnitud y significancia al incorporar controles.
+
+
+\newpage
+\blandscape
+
+
+```{r include=FALSE}
+### Regresiones por grupos.
+
+### Grupo etario: 6 a 11 años.
+
+temp <- subset(grupos, grupo == "edad_6a11")
+
+temp$after_00 <- 0
+temp$after_00[temp$anio > 2000] <- 1
+
+temp$after_05 <- 0
+temp$after_05[temp$anio > 2005] <- 1
+
+temp$after_10 <- 0
+temp$after_10[temp$anio > 2010] <- 1
+
+temp$after_15 <- 0
+temp$after_15[temp$anio > 2015] <- 1
+
+temp$diff_05 <- temp$trat * temp$after_00
+temp$diff_10 <- temp$trat * temp$after_05
+temp$diff_15 <- temp$trat * temp$after_10
+temp$diff_20 <- temp$trat * temp$after_15
+
+temp$diff <- temp$diff_15
+
+# 1. Pooled OLS.
+
+modelo1 <- lm(alfabet ~ trat + diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), temp)
+cov1 <- vcovCR(modelo1, type="CR1", cluster=temp$mun)
+robust_se1 <- sqrt(diag(cov1))
+
+# 2. Efectos Fijos.
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+modelo2 <- plm(alfabet ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov2 <- vcovCR(modelo2, type="CR1", cluster=p_datos$mun)
+robust_se2 <- sqrt(diag(cov2))
+
+# 3. Efectos Fijos controlando Hablantes de lengua indígena.
+
+modelo3 <- plm(alfabet ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio) + hlengua, p_datos, model = "within")
+cov3 <- vcovCR(modelo3, type="CR1", cluster=p_datos$mun)
+robust_se3 <- sqrt(diag(cov3))
+
+# 4. Efectos Fijos con controles (2010 y 2015).
+
+modelo4 <- plm(alfabet ~ diff_15 + factor(anio) + hlengua + mujer + asisten + nivacad + rural + pobreza + pobreza_ext + pob + rezed + salud + seg_soc + vivienda + serv_viv + alim + inf_lb + gini, p_datos, model = "within")
+cov4 <- vcovCR(modelo4, type="CR1", cluster=p_datos$mun)
+robust_se4 <- sqrt(diag(cov3))
+
+# 5. Efectos Aleatorios.
+
+modelo5 <- plm(alfabet ~ trat + diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "random")
+cov5 <- vcovCR(modelo5, type="CR1", cluster=p_datos$mun)
+robust_se5 <- sqrt(diag(cov5))
+
+# Prueba de Hausman.
+
+phtest(modelo2, modelo5)
+```
+
+
+```{r results="asis", echo=FALSE}
+stargazer(modelo1, modelo2, modelo3, modelo4, modelo5,
+          title="Modelos de Diferencias en Diferencias",
+          se=list(robust_se1, robust_se2, robust_se3, robust_se4, robust_se5),
+          omit=c("trat", "anio", "mujer", "asisten", "nivacad", "rural", "pobreza", "pobreza_ext", "pob", "rezed", "salud", "seg_soc", "vivienda", "serv_viv", "alim", "inf_lb", "gini"),
+          omit.stat=c("f"),
+          font.size="scriptsize",
+          column.sep.width="0pt",
+          model.names=F,
+          column.labels=c("Pooled OLS", "Efectos Fijos", "Efectos Fijos", "Efectos Fijos", "Efectos Aleatorios"),
+          add.lines=list(c("Edades", "6 a 11 años", "6 a 11 años", "6 a 11 años", "6 a 11 años", "6 a 11 años"),
+                         c("Errores", "Cluster", "Cluster", "Cluster", "Cluster", "Cluster"),
+                         c("Efectos", "No", "FE", "FE", "FE", "RE"),
+                         c("Otros Controles", "No", "No", "No", "Sí", "No")),
+          covariate.labels = c("Diff-in-Diff 2005", "Diff-in-Diff 2010", "Diff-in-Diff 2015", "Diff-in-Diff 2020", "Hablan lengua indígena"),
+          dep.var.labels="Alfabetismo", no.space=TRUE, header=FALSE)
+```
+
+
+\elandscape
+\newpage
+
+
+Como referencia visual de este efecto, a continuación, se muestra el comportamiento de los grupos entre 2010 y 2020, estimando el efecto del programa a partir de la curva del supuesto de tendencias paralelas: es decir, qué hubiera pasado si los municipios del programa no hubieran percibido estos subsidios (siguiendo la tendencia del grupo de control). La diferencia entre la curva punteada que representa el contrafactual y la curva azul que representa al grupo de tratamiento es el efecto del programa.
+\break
+
+
+```{r include=FALSE}
+temp <- subset(grupos, grupo == "edad_6a11")
+
+temp$after_00 <- 0
+temp$after_00[temp$anio > 2000] <- 1
+
+temp$after_05 <- 0
+temp$after_05[temp$anio > 2005] <- 1
+
+temp$after_10 <- 0
+temp$after_10[temp$anio > 2010] <- 1
+
+temp$after_15 <- 0
+temp$after_15[temp$anio > 2015] <- 1
+
+temp$diff_05 <- temp$trat * temp$after_00
+temp$diff_10 <- temp$trat * temp$after_05
+temp$diff_15 <- temp$trat * temp$after_10
+temp$diff_20 <- temp$trat * temp$after_15
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+diff <- p_datos %>%
+  group_by(trat, anio) %>%
+  summarize(means = mean(alfabet))
+
+diff$trat <- factor(diff$trat)
+
+diff$tendencia <- diff$means + 0.839 # Coeficiente diff_05.
+diff$tendencia[diff$anio == 2000] <- 72.02254 # Punto inicial del programa (means).
+diff$tendencia[diff$anio == 2010] <- 72.96219 - 0.364 # En las tendencias del programa, vamos sumando/restando coeficientes.
+diff$tendencia[diff$anio == 2015] <- 80.46818 - 0.364 - 2.898
+diff$tendencia[diff$anio == 2020] <- 79.70948 - 0.364 - 2.898 - 0.526
+
+diff$means <- as.numeric(diff$means)
+diff$tendencia <- as.numeric(diff$tendencia)
+diff$anio <- as.numeric(diff$anio)
+
+diff$anio[diff$anio == 1] <- 2000
+diff$anio[diff$anio == 2] <- 2005
+diff$anio[diff$anio == 3] <- 2010
+diff$anio[diff$anio == 4] <- 2015
+diff$anio[diff$anio == 5] <- 2020
+
+diff$means <- round(diff$means, 2)
+diff$tendencia <- round(diff$tendencia, 2)
+```
+
+
+```{r results="asis", echo=FALSE, warning=FALSE}
+ggplot(diff, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff, trat==0)) +
+  geom_line(data=subset(diff, trat==1)) +
+  geom_point(data=subset(diff, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  geom_text(data=subset(diff, trat==1 & anio == 2005), aes(label=tendencia), vjust=-3) +
+  geom_text(data=subset(diff, trat==1 & anio == 2010), aes(label=tendencia), vjust=-2.5) +
+  geom_text(data=subset(diff, trat==1 & anio == 2015), aes(label=tendencia), vjust=4.5) +
+  geom_text(data=subset(diff, trat==1 & anio == 2020), aes(label=tendencia), vjust=5.5) +
+  ggtitle("Gráfica 8. Diff-in-Diff del Programa de Inclusión y Equidad Educativa") +
+  labs(x="Año", y="Alfabetismo", color="Programa") +
+  xlim(2000, 2020)
+```
+
+
+### 5.2.2. Impacto por edades
+
+También, es posible separar este efecto por edades, para identificar si el programa tuvo un impacto heterogéneo por generación. Estos resultados se muestran en la siguiente tabla utilizando efectos fijos por municipio y tiempo para estimar las Diferencias en Diferencias separando por edades entre 6 y 11 años.
+
+Según estas estimaciones, el impacto del programa fue mayor para las niñas y niños que tenían 7 años: 5.741 puntos porcentuales entre 2010 y 2020. Los resultados para los grupos de 6 y 8 años son similares, con efectos de 4.219 y 4.494 puntos, respectivamente. Sin embargo, para las niñas y niños de 9 a 11 años, el impacto del programa parece desaparecer a partir de 2015 o, con mayor precisión, se mantuvo o no incrementó respecto del efecto de 2014-2015. Cabe destacar que el supuesto de tendencias paralelas podría ser inválido para el caso de 6 y 7 años, toda vez que muestran coeficientes estadísticamente significativos al 1% para los placebos de 2005 o 2010.
+
+
+\newpage
+\blandscape
+
+
+```{r include=FALSE}
+### Regresiones por edades.
+
+### Modelo base: Efectos Fijos
+
+temp <- subset(edades)
+
+temp$after_00 <- 0
+temp$after_00[temp$anio > 2000] <- 1
+
+temp$after_05 <- 0
+temp$after_05[temp$anio > 2005] <- 1
+
+temp$after_10 <- 0
+temp$after_10[temp$anio > 2010] <- 1
+
+temp$after_15 <- 0
+temp$after_15[temp$anio > 2015] <- 1
+
+temp$diff_05 <- temp$trat * temp$after_00
+temp$diff_10 <- temp$trat * temp$after_05
+temp$diff_15 <- temp$trat * temp$after_10
+temp$diff_20 <- temp$trat * temp$after_15
+
+temp$diff <- temp$diff_15
+
+# 1. Grupo de 6 años.
+
+p_datos <- subset(temp, grupo == "edad_6")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo1 <- plm(alfabet ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov1 <- vcovCR(modelo1, type="CR1", cluster=p_datos$mun)
+robust_se1 <- sqrt(diag(cov1))
+
+# 2. Grupo de 7 años.
+
+p_datos <- subset(temp, grupo == "edad_7")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo2 <- plm(alfabet ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov2 <- vcovCR(modelo2, type="CR1", cluster=p_datos$mun)
+robust_se2 <- sqrt(diag(cov2))
+
+# 3. Grupo de 8 años.
+
+p_datos <- subset(temp, grupo == "edad_8")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo3 <- plm(alfabet ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov3 <- vcovCR(modelo3, type="CR1", cluster=p_datos$mun)
+robust_se3 <- sqrt(diag(cov3))
+
+# 4. Grupo de 9 años.
+
+p_datos <- subset(temp, grupo == "edad_9")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo4 <- plm(alfabet ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov4 <- vcovCR(modelo4, type="CR1", cluster=p_datos$mun)
+robust_se4 <- sqrt(diag(cov4))
+
+# 5. Grupo de 10 años.
+
+p_datos <- subset(temp, grupo == "edad_10")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo5 <- plm(alfabet ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov5 <- vcovCR(modelo5, type="CR1", cluster=p_datos$mun)
+robust_se5 <- sqrt(diag(cov5))
+
+# 6. Grupo de 11 años.
+
+p_datos <- subset(temp, grupo == "edad_11")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo6 <- plm(alfabet ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov6 <- vcovCR(modelo6, type="CR1", cluster=p_datos$mun)
+robust_se6 <- sqrt(diag(cov6))
+```
+
+
+```{r results="asis", echo=FALSE}
+stargazer(modelo1, modelo2, modelo3, modelo4, modelo5, modelo6,
+          title="Modelos de Diferencias en Diferencias por edades",
+          se=list(robust_se1, robust_se2, robust_se3, robust_se4, robust_se5, robust_se6),
+          omit=c("anio"),
+          font.size="scriptsize",
+          column.sep.width="0pt",
+          model.names=F,
+          column.labels=c("Efectos Fijos", "Efectos Fijos", "Efectos Fijos", "Efectos Fijos", "Efectos Fijos", "Efectos Fijos"),
+          add.lines=list(c("Edades", "6 años", "7 años", "8 años", "9 años", "10 años", "11 años"),
+                         c("Errores", "Cluster", "Cluster", "Cluster", "Cluster", "Cluster", "Cluster"),
+                         c("Efectos", "FE", "FE", "FE", "FE", "FE", "FE")),
+          covariate.labels = c("Diff-in-Diff 2005", "Diff-in-Diff 2010", "Diff-in-Diff 2015", "Diff-in-Diff 2020"),
+          dep.var.labels="Alfabetismo", no.space=TRUE, header=FALSE)
+```
+
+
+\elandscape
+\newpage
+
+
+```{r include=FALSE}
+### Gráficas por edad:
+
+edad_ <- c("edad_6", "edad_7", "edad_8", "edad_9", "edad_10", "edad_11")
+
+counter <- 5
+
+for(x in 1:length(edad_)) {
+  
+temp <- subset(edades, grupo == edad_[x])
+
+temp$after_00 <- 0
+temp$after_00[temp$anio > 2000] <- 1
+
+temp$after_05 <- 0
+temp$after_05[temp$anio > 2005] <- 1
+
+temp$after_10 <- 0
+temp$after_10[temp$anio > 2010] <- 1
+
+temp$after_15 <- 0
+temp$after_15[temp$anio > 2015] <- 1
+
+temp$diff_05 <- temp$trat * temp$after_00
+temp$diff_10 <- temp$trat * temp$after_05
+temp$diff_15 <- temp$trat * temp$after_10
+temp$diff_20 <- temp$trat * temp$after_15
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+diff <- p_datos %>%
+  group_by(trat, anio) %>%
+  summarize(means = mean(alfabet))
+
+diff$trat <- factor(diff$trat)
+
+modelo <- lm(alfabet ~ trat + diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), temp)
+
+diff$tendencia <- diff$means - coef(summary(modelo))["diff_05","Estimate"] # Coeficiente diff_05.
+diff$tendencia[diff$anio == 2000] <- diff[[6,3]] # Punto inicial del programa (means).
+diff$tendencia[diff$anio == 2010] <- diff[[8,4]] - coef(summary(modelo))["diff_10","Estimate"] # En las tendencias del programa, vamos sumando/restando coeficientes.
+diff$tendencia[diff$anio == 2015] <- diff[[9,4]] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_15","Estimate"]
+diff$tendencia[diff$anio == 2020] <- diff[[10,4]] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_20","Estimate"]
+
+diff$means <- as.numeric(diff$means)
+diff$tendencia <- as.numeric(diff$tendencia)
+diff$anio <- as.numeric(diff$anio)
+
+diff$anio[diff$anio == 1] <- 2000
+diff$anio[diff$anio == 2] <- 2005
+diff$anio[diff$anio == 3] <- 2010
+diff$anio[diff$anio == 4] <- 2015
+diff$anio[diff$anio == 5] <- 2020
+
+diff$means <- round(diff$means, 2)
+diff$tendencia <- round(diff$tendencia, 2)
+
+counter <- counter + 1
+
+assign(paste("diff", counter[], sep = "_"), diff)
+
+}
+```
+
+
+```{r results="asis", echo=FALSE, warning=FALSE}
+ggplot(diff_6, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff_6, trat==0)) +
+  geom_line(data=subset(diff_6, trat==1)) +
+  geom_point(data=subset(diff_6, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff_6, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  geom_text(data=subset(diff_6, trat==1 & anio == 2005), aes(label=tendencia), vjust=1.5) +
+  geom_text(data=subset(diff_6, trat==1 & anio == 2010), aes(label=tendencia), vjust=-2.5) +
+  geom_text(data=subset(diff_6, trat==1 & anio == 2015), aes(label=tendencia), vjust=2) +
+  geom_text(data=subset(diff_6, trat==1 & anio == 2020), aes(label=tendencia), vjust=3.5) +
+  ggtitle("Gráfica 9. Diff-in-Diff del Programa de Inclusión y Equidad Educativa:\npoblación de 6 años") +
+  labs(x="Año", y="Alfabetismo", color="Programa") +
+  xlim(2000, 2020)
+
+ggplot(diff_7, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff_7, trat==0)) +
+  geom_line(data=subset(diff_7, trat==1)) +
+  geom_point(data=subset(diff_7, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff_7, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  geom_text(data=subset(diff_7, trat==1 & anio == 2005), aes(label=tendencia), vjust=-4.5) +
+  geom_text(data=subset(diff_7, trat==1 & anio == 2010), aes(label=tendencia), vjust=-2.5) +
+  geom_text(data=subset(diff_7, trat==1 & anio == 2015), aes(label=tendencia), vjust=3) +
+  geom_text(data=subset(diff_7, trat==1 & anio == 2020), aes(label=tendencia), vjust=4) +
+  ggtitle("Gráfica 10. Diff-in-Diff del Programa de Inclusión y Equidad Educativa:\npoblación de 7 años") +
+  labs(x="Año", y="Alfabetismo", color="Programa") +
+  xlim(2000, 2020)
+
+ggplot(diff_8, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff_8, trat==0)) +
+  geom_line(data=subset(diff_8, trat==1)) +
+  geom_point(data=subset(diff_8, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff_8, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  geom_text(data=subset(diff_8, trat==1 & anio == 2005), aes(label=tendencia), vjust=-3) +
+  geom_text(data=subset(diff_8, trat==1 & anio == 2010), aes(label=tendencia), vjust=-2) +
+  geom_text(data=subset(diff_8, trat==1 & anio == 2015), aes(label=tendencia), vjust=6) +
+  geom_text(data=subset(diff_8, trat==1 & anio == 2020), aes(label=tendencia), vjust=7.5) +
+  ggtitle("Gráfica 11. Diff-in-Diff del Programa de Inclusión y Equidad Educativa:\npoblación de 8 años") +
+  labs(x="Año", y="Alfabetismo", color="Programa") +
+  xlim(2000, 2020)
+
+ggplot(diff_9, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff_9, trat==0)) +
+  geom_line(data=subset(diff_9, trat==1)) +
+  geom_point(data=subset(diff_9, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff_9, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  geom_text(data=subset(diff_9, trat==1 & anio == 2005), aes(label=tendencia), vjust=-2) +
+  geom_text(data=subset(diff_9, trat==1 & anio == 2010), aes(label=tendencia), vjust=-2) +
+  geom_text(data=subset(diff_9, trat==1 & anio == 2015), aes(label=tendencia), vjust=7.5) +
+  geom_text(data=subset(diff_9, trat==1 & anio == 2020), aes(label=tendencia), vjust=8) +
+  ggtitle("Gráfica 12. Diff-in-Diff del Programa de Inclusión y Equidad Educativa:\npoblación de 9 años") +
+  labs(x="Año", y="Alfabetismo", color="Programa") +
+  xlim(2000, 2020)
+
+ggplot(diff_10, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff_10, trat==0)) +
+  geom_line(data=subset(diff_10, trat==1)) +
+  geom_point(data=subset(diff_10, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff_10, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  geom_text(data=subset(diff_10, trat==1 & anio == 2005), aes(label=tendencia), vjust=2.5) +
+  geom_text(data=subset(diff_10, trat==1 & anio == 2010), aes(label=tendencia), vjust=2.5) +
+  geom_text(data=subset(diff_10, trat==1 & anio == 2015), aes(label=tendencia), vjust=9) +
+  geom_text(data=subset(diff_10, trat==1 & anio == 2020), aes(label=tendencia), vjust=9) +
+  ggtitle("Gráfica 13. Diff-in-Diff del Programa de Inclusión y Equidad Educativa:\npoblación de 10 años") +
+  labs(x="Año", y="Alfabetismo", color="Programa") +
+  xlim(2000, 2020)
+
+ggplot(diff_11, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff_11, trat==0)) +
+  geom_line(data=subset(diff_11, trat==1)) +
+  geom_point(data=subset(diff_11, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff_11, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  geom_text(data=subset(diff_11, trat==1 & anio == 2005), aes(label=tendencia), vjust=2) +
+  geom_text(data=subset(diff_11, trat==1 & anio == 2010), aes(label=tendencia), vjust=2.5) +
+  geom_text(data=subset(diff_11, trat==1 & anio == 2015), aes(label=tendencia), vjust=9.5) +
+  geom_text(data=subset(diff_11, trat==1 & anio == 2020), aes(label=tendencia), vjust=10) +
+  ggtitle("Gráfica 14. Diff-in-Diff del Programa de Inclusión y Equidad Educativa:\npoblación de 11 años") +
+  labs(x="Año", y="Alfabetismo", color="Programa") +
+  xlim(2000, 2020)
+```
+
+
+Adicionalmente, se intento darle seguimiento a una misma cohorte de estudiantes a lo largo del tiempo: por ejemplo, cuando tenían 6 años en 2010, luego 11 años en 2015 y 16 años en 2020. Sin embargo, no fue posible estimar el efecto del programa por este medio, ya que, para periodos posteriores a la conclusión de la primaria, se alcanzan valores cercanos al 100% de alfabetización tanto en el grupo de control, como en el grupo del programa.
+
+Dado que la variable dependiente está topada al 100%, no es posible construir correctamente el contrafactual de dobles diferencias: por construcción, la línea del contrafactual siempre tendría menor curvatura que la del grupo de control, arrojando siempre un coeficiente positivo, alto y con significancia.
+
+A partir de lo anterior, podría surgir la siguiente duda: ¿entonces, para qué sirve el programa, si de todas formas las niñas y niños van a estar alfabetizados cuando cumplan más de 11 años? La respuesta se remite al marco teórico: porque no solo importa que las personas aprendan (en algún punto de su vida), sino que aprendan de forma temprana, porque existe el periodo crítico (antes de los 12 años) cuando adquieren mejor estos conocimientos y porque estas habilidades cognitivas ayudan al desarrollo de habilidades posteriores con el tiempo.
+
+
+\newpage
+
+
+## 5.3. Mecanismo Causal y Efectos Indirectos
+
+Idealmente, la mejor alternativa para probar el mecanismo causal entre los subsidios del programa y el alfabetismo sería utilizando cifras sobre i) infraestructura escolar y ii) calidad docente. Sin embargo, la información sobre infraestructura escolar es muy limitada: existe un *Censo de escuelas, maestros y alumnos de educación básica y especial*, pero solo se realizó en 2013 (SEP & INEGI 2013). Por otro lado, existe información sobre evaluación del Servicio Profesional Docente, pero es representativa por entidades federativas y no se encuentra a nivel municipal (INEE 2019).
+
+Otra alternativa para medir, indirectamente, la calidad docente, sería utilizando los resultados de pruebas estandarizadas en alumnas y alumnos de primaria. Sin embargo, la prueba ENLACE se realizó hasta 2013 para, posteriormente, ser sustituida por PLANEA para el ciclo escolar 2014-2015, mientras que el programa nació en 2014.
+
+Debido a lo anterior, se utilizaron múltiples proxys, principalmente, en materia de infraestructura escolar para información municipal de tipo panel. El porcentaje de asistencia escolar por municipio (de niñas y niños entre 6 y 11 años) se construyó utilizando los Conteos, Censos y Encuesta Intercensal del INEGI.
+
+Por otro lado, se utilizaron las cifras del Formato 911 de la SEP, exclusivamente entre escuelas de educación indígena, para medir la matrícula escolar, número de docentes, número de docentes con educación superior y número de aulas por escuela en municipios de control y tratamiento por año de 2000 a 2019.
+
+Adicionalmente, se planteó la posibilidad de observar efectos indirectos del programa. Es posible que un mayor nivel alfabetismo entre estudiantes de escuelas del programa se tradujera en incrementos en el alfabetismo de sus madres y abuelas. Para ello, se utilizó el porcentaje de alfabetismo de mujeres entre 21 y 40 años, 40 y 60 años y 60 años o más en domicilios con niñas y niños de 6 a 11 años con información de los Conteos, Censos y Encuesta Intercensal del INEGI.
+
+### 5.3.1. Mecanismo causal: Asistencia escolar
+
+A continuación, se presentan los resultados del modelo de Diferencias en Diferencias sobre asistencia escolar entre las niñas y niños de 6 a 11 años, es decir, durante la primaria. La primera columna se refiere a una especificación OLS *pooled*, la segunda, a efectos fijos, la cuarta, efectos fijos controlando por población que habla lengua indígena, la quinta, por efectos fijos controlando por el resto de variables sociodemográficas y la sexta, efectos aleatorios. En todos los casos, se utilizan errores cluster por municipio.
+
+Además, se incorpora la tabla con estimaciones por edad (6, 7, 8, 9, 10 y 11 años) para identificar efectos heterogéneos.
+
+Según la estimación, el programa incrementó la asistencia escolar en 1.312 puntos porcentuales en los municipios cuyas escuelas de educación indígena percibieron subsidios. Aunque el coeficiente del placebo de 2005 es negativo y significativo al 5% y de 2010 es positivo y significativo al 10%.
+
+La evidencia más robusta se refiere a los grupos de 9 y 11 años con efectos de 1.069 y 0.753 puntos porcentuales, respectivamente. En ambos casos, la evidencia parece señalar que se cumple el supuesto de tendencias paralelas.
+
+
+```{r include=FALSE}
+temp <- subset(grupos, grupo == "edad_6a11")
+
+temp$after_00 <- 0
+temp$after_00[temp$anio > 2000] <- 1
+
+temp$after_05 <- 0
+temp$after_05[temp$anio > 2005] <- 1
+
+temp$after_10 <- 0
+temp$after_10[temp$anio > 2010] <- 1
+
+temp$after_15 <- 0
+temp$after_15[temp$anio > 2015] <- 1
+
+temp$diff_05 <- temp$trat * temp$after_00
+temp$diff_10 <- temp$trat * temp$after_05
+temp$diff_15 <- temp$trat * temp$after_10
+temp$diff_20 <- temp$trat * temp$after_15
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+diff <- p_datos %>%
+  group_by(trat, anio) %>%
+  summarize(means = mean(asisten))
+
+diff$trat <- factor(diff$trat)
+
+modelo <- lm(asisten ~ trat + diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), temp)
+
+diff$tendencia <- diff$means - coef(summary(modelo))["diff_05","Estimate"] # Coeficiente diff_05.
+diff$tendencia[diff$anio == 2000] <- diff[[6,3]] # Punto inicial del programa (means).
+diff$tendencia[diff$anio == 2010] <- diff[[8,4]] - coef(summary(modelo))["diff_10","Estimate"] # En las tendencias del programa, vamos sumando/restando coeficientes.
+diff$tendencia[diff$anio == 2015] <- diff[[9,4]] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_15","Estimate"]
+diff$tendencia[diff$anio == 2020] <- diff[[10,4]] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_20","Estimate"]
+
+diff$means <- as.numeric(diff$means)
+diff$tendencia <- as.numeric(diff$tendencia)
+diff$anio <- as.numeric(diff$anio)
+
+diff$anio[diff$anio == 1] <- 2000
+diff$anio[diff$anio == 2] <- 2005
+diff$anio[diff$anio == 3] <- 2010
+diff$anio[diff$anio == 4] <- 2015
+diff$anio[diff$anio == 5] <- 2020
+
+diff$means <- round(diff$means, 2)
+diff$tendencia <- round(diff$tendencia, 2)
+```
+
+
+```{r results="asis", echo=FALSE, warning=FALSE}
+ggplot(diff, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff, trat==0)) +
+  geom_line(data=subset(diff, trat==1)) +
+  geom_point(data=subset(diff, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  geom_text(data=subset(diff, trat==1 & anio == 2005), aes(label=tendencia), vjust=-4.5) +
+  geom_text(data=subset(diff, trat==1 & anio == 2010), aes(label=tendencia), vjust=-2.5) +
+  geom_text(data=subset(diff, trat==1 & anio == 2015), aes(label=tendencia), vjust=3.5) +
+  geom_text(data=subset(diff, trat==1 & anio == 2020), aes(label=tendencia), vjust=7) +
+  ggtitle("Gráfica 15. Diff-in-Diff del Programa de Inclusión y Equidad Educativa") +
+  labs(x="Año", y="Asistencia escolar", color="Programa") +
+  xlim(2000, 2020)
+```
+
+
+\newpage
+\blandscape
+
+
+```{r include=FALSE}
+### Regresiones por grupos.
+
+### Grupo etario: 6 a 11 años.
+
+temp <- subset(grupos, grupo == "edad_6a11")
+
+temp$after_00 <- 0
+temp$after_00[temp$anio > 2000] <- 1
+
+temp$after_05 <- 0
+temp$after_05[temp$anio > 2005] <- 1
+
+temp$after_10 <- 0
+temp$after_10[temp$anio > 2010] <- 1
+
+temp$after_15 <- 0
+temp$after_15[temp$anio > 2015] <- 1
+
+temp$diff_05 <- temp$trat * temp$after_00
+temp$diff_10 <- temp$trat * temp$after_05
+temp$diff_15 <- temp$trat * temp$after_10
+temp$diff_20 <- temp$trat * temp$after_15
+
+temp$diff <- temp$diff_15
+
+# 1. Pooled OLS.
+
+modelo1 <- lm(asisten ~ trat + diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), temp)
+cov1 <- vcovCR(modelo1, type="CR1", cluster=temp$mun)
+robust_se1 <- sqrt(diag(cov1))
+
+# 2. Efectos Fijos.
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+modelo2 <- plm(asisten ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov2 <- vcovCR(modelo2, type="CR1", cluster=p_datos$mun)
+robust_se2 <- sqrt(diag(cov2))
+
+# 3. Efectos Fijos controlando Hablantes de lengua indígena.
+
+modelo3 <- plm(asisten ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio) + hlengua, p_datos, model = "within")
+cov3 <- vcovCR(modelo3, type="CR1", cluster=p_datos$mun)
+robust_se3 <- sqrt(diag(cov3))
+
+# 4. Efectos Fijos con controles (2010 y 2015).
+
+modelo4 <- plm(asisten ~ diff_15 + factor(anio) + hlengua + mujer + nivacad + rural + pobreza + pobreza_ext + pob + rezed + salud + seg_soc + vivienda + serv_viv + alim + inf_lb + gini, p_datos, model = "within")
+cov4 <- vcovCR(modelo4, type="CR1", cluster=p_datos$mun)
+robust_se4 <- sqrt(diag(cov3))
+
+# 5. Efectos Aleatorios
+
+modelo5 <- plm(asisten ~ trat + diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "random")
+cov5 <- vcovCR(modelo5, type="CR1", cluster=p_datos$mun)
+robust_se5 <- sqrt(diag(cov5))
+
+# Prueba de Hausman.
+
+phtest(modelo2, modelo5)
+```
+
+
+```{r results="asis", echo=FALSE}
+stargazer(modelo1, modelo2, modelo3, modelo4, modelo5,
+          title="Modelos de Diferencias en Diferencias",
+          se=list(robust_se1, robust_se2, robust_se3, robust_se4, robust_se5),
+          omit=c("trat", "anio", "mujer", "asisten", "nivacad", "rural", "pobreza", "pobreza_ext", "pob", "rezed", "salud", "seg_soc", "vivienda", "serv_viv", "alim", "inf_lb", "gini"),
+          omit.stat=c("f"),
+          font.size="scriptsize",
+          column.sep.width="0pt",
+          model.names=F,
+          column.labels=c("Pooled OLS", "Efectos Fijos", "Efectos Fijos", "Efectos Fijos", "Efectos Aleatorios"),
+          add.lines=list(c("Edades", "6 a 11 años", "6 a 11 años", "6 a 11 años", "6 a 11 años", "6 a 11 años"),
+                         c("Errores", "Cluster", "Cluster", "Cluster", "Cluster", "Cluster"),
+                         c("Efectos", "No", "FE", "FE", "FE", "RE"),
+                         c("Otros Controles", "No", "No", "No", "Sí", "No")),
+          covariate.labels = c("Diff-in-Diff 2005", "Diff-in-Diff 2010", "Diff-in-Diff 2015", "Diff-in-Diff 2020", "Hablan lengua indígena"),
+          dep.var.labels="Asistencia escolar", no.space=TRUE, header=FALSE)
+```
+
+
+\elandscape
+\newpage
+\blandscape
+
+
+```{r include=FALSE}
+### Regresiones por edades.
+
+### Modelo base: Efectos Fijos
+
+temp <- subset(edades)
+
+temp$after_00 <- 0
+temp$after_00[temp$anio > 2000] <- 1
+
+temp$after_05 <- 0
+temp$after_05[temp$anio > 2005] <- 1
+
+temp$after_10 <- 0
+temp$after_10[temp$anio > 2010] <- 1
+
+temp$after_15 <- 0
+temp$after_15[temp$anio > 2015] <- 1
+
+temp$diff_05 <- temp$trat * temp$after_00
+temp$diff_10 <- temp$trat * temp$after_05
+temp$diff_15 <- temp$trat * temp$after_10
+temp$diff_20 <- temp$trat * temp$after_15
+
+temp$diff <- temp$diff_15
+
+# 1. Grupo de 6 años.
+
+p_datos <- subset(temp, grupo == "edad_6")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo1 <- plm(asisten ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov1 <- vcovCR(modelo1, type="CR1", cluster=p_datos$mun)
+robust_se1 <- sqrt(diag(cov1))
+
+# 2. Grupo de 7 años.
+
+p_datos <- subset(temp, grupo == "edad_7")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo2 <- plm(asisten ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov2 <- vcovCR(modelo2, type="CR1", cluster=p_datos$mun)
+robust_se2 <- sqrt(diag(cov2))
+
+# 3. Grupo de 8 años.
+
+p_datos <- subset(temp, grupo == "edad_8")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo3 <- plm(asisten ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov3 <- vcovCR(modelo3, type="CR1", cluster=p_datos$mun)
+robust_se3 <- sqrt(diag(cov3))
+
+# 4. Grupo de 9 años.
+
+p_datos <- subset(temp, grupo == "edad_9")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo4 <- plm(asisten ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov4 <- vcovCR(modelo4, type="CR1", cluster=p_datos$mun)
+robust_se4 <- sqrt(diag(cov4))
+
+# 5. Grupo de 10 años.
+
+p_datos <- subset(temp, grupo == "edad_10")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo5 <- plm(asisten ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov5 <- vcovCR(modelo5, type="CR1", cluster=p_datos$mun)
+robust_se5 <- sqrt(diag(cov5))
+
+# 6. Grupo de 11 años.
+
+p_datos <- subset(temp, grupo == "edad_11")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+
+modelo6 <- plm(asisten ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov6 <- vcovCR(modelo6, type="CR1", cluster=p_datos$mun)
+robust_se6 <- sqrt(diag(cov6))
+```
+
+
+```{r results="asis", echo=FALSE}
+stargazer(modelo1, modelo2, modelo3, modelo4, modelo5, modelo6,
+          title="Modelos de Diferencias en Diferencias por edades",
+          se=list(robust_se1, robust_se2, robust_se3, robust_se4, robust_se5, robust_se6),
+          omit=c("anio"),
+          font.size="scriptsize",
+          column.sep.width="0pt",
+          model.names=F,
+          column.labels=c("Efectos Fijos", "Efectos Fijos", "Efectos Fijos", "Efectos Fijos", "Efectos Fijos", "Efectos Fijos"),
+          add.lines=list(c("Edades", "6 años", "7 años", "8 años", "9 años", "10 años", "11 años"),
+                         c("Errores", "Cluster", "Cluster", "Cluster", "Cluster", "Cluster", "Cluster"),
+                         c("Efectos", "FE", "FE", "FE", "FE", "FE", "FE")),
+          covariate.labels = c("Diff-in-Diff 2005", "Diff-in-Diff 2010", "Diff-in-Diff 2015", "Diff-in-Diff 2020"),
+          dep.var.labels="Asistencia escolar", no.space=TRUE, header=FALSE)
+```
+
+
+\elandscape
+\newpage
+
+
+### 5.3.2. Mecanismo causal: Matrícula escolar
+
+Al respecto de la matrícula escolar, se cuenta con información anual de 2000 a 2019 por escuela de educación indígena entre los municipios de control y del programa. La siguiente tabla muestra la estimación del modelo de Diferencias en Diferencias donde la primera columna es un OLS *pooled* únicamente para el cambio de 2014, la segunda columna es un OLS *pooled* para toda la línea de tiempo de 2000 a 2019, la tercera incluye efectos fijos y la cuarta, efectos aleatorios. En todos los casos, se utilizan errores cluster por municipio.
+
+En principio, se observa un salto significativo promedio de 5.547 estudiantes por escuela a partir de la creación del programa. Sin embargo, al observar la línea de tiempo hacia atrás, hay dos saltos importantes de 2.313 y 2.646 en 2005 y 2007. De hecho, en la gráfica se observa con mayor claridad que, fuera de estos saltos, la curva del contrafactual parecería ser bastante "paralela" a la curva del grupo del programa hasta el salto de 2.502 estudiantes por escuela en 2014.
+
+
+```{r include=FALSE}
+temp <- f911
+
+temp$after_01 <- 0
+temp$after_01[temp$anio >= 2001] <- 1
+temp$after_02 <- 0
+temp$after_02[temp$anio >= 2002] <- 1
+temp$after_03 <- 0
+temp$after_03[temp$anio >= 2003] <- 1
+temp$after_04 <- 0
+temp$after_04[temp$anio >= 2004] <- 1
+temp$after_05 <- 0
+temp$after_05[temp$anio >= 2005] <- 1
+temp$after_06 <- 0
+temp$after_06[temp$anio >= 2006] <- 1
+temp$after_07 <- 0
+temp$after_07[temp$anio >= 2007] <- 1
+temp$after_08 <- 0
+temp$after_08[temp$anio >= 2008] <- 1
+temp$after_09 <- 0
+temp$after_09[temp$anio >= 2009] <- 1
+temp$after_10 <- 0
+temp$after_10[temp$anio >= 2010] <- 1
+temp$after_11 <- 0
+temp$after_11[temp$anio >= 2011] <- 1
+temp$after_12 <- 0
+temp$after_12[temp$anio >= 2012] <- 1
+temp$after_13 <- 0
+temp$after_13[temp$anio >= 2013] <- 1
+temp$after_14 <- 0
+temp$after_14[temp$anio >= 2014] <- 1
+temp$after_15 <- 0
+temp$after_15[temp$anio >= 2015] <- 1
+temp$after_16 <- 0
+temp$after_16[temp$anio >= 2016] <- 1
+temp$after_17 <- 0
+temp$after_17[temp$anio >= 2017] <- 1
+temp$after_18 <- 0
+temp$after_18[temp$anio >= 2018] <- 1
+temp$after_19 <- 0
+temp$after_19[temp$anio >= 2019] <- 1
+
+temp$diff_01 <- temp$trat * temp$after_01
+temp$diff_02 <- temp$trat * temp$after_02
+temp$diff_03 <- temp$trat * temp$after_03
+temp$diff_04 <- temp$trat * temp$after_04
+temp$diff_05 <- temp$trat * temp$after_05
+temp$diff_06 <- temp$trat * temp$after_06
+temp$diff_07 <- temp$trat * temp$after_07
+temp$diff_08 <- temp$trat * temp$after_08
+temp$diff_09 <- temp$trat * temp$after_09
+temp$diff_10 <- temp$trat * temp$after_10
+temp$diff_11 <- temp$trat * temp$after_11
+temp$diff_12 <- temp$trat * temp$after_12
+temp$diff_13 <- temp$trat * temp$after_13
+temp$diff_14 <- temp$trat * temp$after_14
+temp$diff_15 <- temp$trat * temp$after_15
+temp$diff_16 <- temp$trat * temp$after_16
+temp$diff_17 <- temp$trat * temp$after_17
+temp$diff_18 <- temp$trat * temp$after_18
+temp$diff_19 <- temp$trat * temp$after_19
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+diff <- p_datos %>%
+  group_by(trat, anio) %>%
+  summarize(means = mean(alum_tot))
+
+diff$trat <- factor(diff$trat)
+
+modelo <- lm(alum_tot ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), temp)
+
+diff$tendencia <- diff$means - coef(summary(modelo))["diff_01","Estimate"] # Coeficiente diff_01.
+diff$tendencia[diff$anio == 2000] <- diff[[21,3]] # Punto inicial del programa (means).
+diff$tendencia[diff$anio == 2002] <- diff[[23,4]] - coef(summary(modelo))["diff_02","Estimate"] # En las tendencias del programa, vamos sumando/restando coeficientes.
+diff$tendencia[diff$anio == 2003] <- diff[[24,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"]
+diff$tendencia[diff$anio == 2004] <- diff[[25,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"]
+diff$tendencia[diff$anio == 2005] <- diff[[26,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"]
+diff$tendencia[diff$anio == 2006] <- diff[[27,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"]
+diff$tendencia[diff$anio == 2007] <- diff[[28,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"]
+diff$tendencia[diff$anio == 2008] <- diff[[29,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"]
+diff$tendencia[diff$anio == 2009] <- diff[[30,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"]
+diff$tendencia[diff$anio == 2010] <- diff[[31,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"]
+diff$tendencia[diff$anio == 2011] <- diff[[32,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"]
+diff$tendencia[diff$anio == 2012] <- diff[[33,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"]
+diff$tendencia[diff$anio == 2013] <- diff[[34,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"]
+diff$tendencia[diff$anio == 2014] <- diff[[35,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"]
+diff$tendencia[diff$anio == 2015] <- diff[[36,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"]
+diff$tendencia[diff$anio == 2016] <- diff[[37,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"]
+diff$tendencia[diff$anio == 2017] <- diff[[38,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"]
+diff$tendencia[diff$anio == 2018] <- diff[[39,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"] - coef(summary(modelo))["diff_18","Estimate"]
+diff$tendencia[diff$anio == 2019] <- diff[[40,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"] - coef(summary(modelo))["diff_18","Estimate"] - coef(summary(modelo))["diff_19","Estimate"]
+
+diff$means <- as.numeric(diff$means)
+diff$tendencia <- as.numeric(diff$tendencia)
+diff$anio <- as.numeric(diff$anio)
+
+diff$anio[diff$anio == 1] <- 2000
+diff$anio[diff$anio == 2] <- 2001
+diff$anio[diff$anio == 3] <- 2002
+diff$anio[diff$anio == 4] <- 2003
+diff$anio[diff$anio == 5] <- 2004
+diff$anio[diff$anio == 6] <- 2005
+diff$anio[diff$anio == 7] <- 2006
+diff$anio[diff$anio == 8] <- 2007
+diff$anio[diff$anio == 9] <- 2008
+diff$anio[diff$anio == 10] <- 2009
+diff$anio[diff$anio == 11] <- 2010
+diff$anio[diff$anio == 12] <- 2011
+diff$anio[diff$anio == 13] <- 2012
+diff$anio[diff$anio == 14] <- 2013
+diff$anio[diff$anio == 15] <- 2014
+diff$anio[diff$anio == 16] <- 2015
+diff$anio[diff$anio == 17] <- 2016
+diff$anio[diff$anio == 18] <- 2017
+diff$anio[diff$anio == 19] <- 2018
+diff$anio[diff$anio == 20] <- 2019
+
+diff$means <- round(diff$means, 1)
+diff$tendencia <- round(diff$tendencia, 1)
+```
+
+
+```{r results="asis", echo=FALSE, warning=FALSE}
+ggplot(diff, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff, trat==0)) +
+  geom_line(data=subset(diff, trat==1)) +
+  geom_point(data=subset(diff, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  ggtitle("Gráfica 16. Diff-in-Diff del Programa de Inclusión y Equidad Educativa") +
+  labs(x="Año", y="Matrícula escolar", color="Programa") +
+  xlim(2000, 2020)
+```
+
+
+\newpage
+\blandscape
+
+
+```{r include=FALSE}
+### Matrícula total.
+
+# 1. Pooled OLS: solo 2014.
+
+modelo1 <- lm(alum_tot ~ trat + diff_14 + after_14, temp)
+cov1 <- vcovCR(modelo1, type="CR1", cluster=temp$mun)
+robust_se1 <- sqrt(diag(cov1))
+
+# 2. Pooled OLS.
+
+modelo2 <- lm(alum_tot ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), temp)
+cov2 <- vcovCR(modelo2, type="CR1", cluster=temp$mun)
+robust_se2 <- sqrt(diag(cov2))
+
+# 3. Efectos Fijos.
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+modelo3 <- plm(alum_tot ~ diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), p_datos, model = "within")
+cov3 <- vcovCR(modelo3, type="CR1", cluster=p_datos$mun)
+robust_se3 <- sqrt(diag(cov3))
+
+# 4. Efectos Aleatorios.
+
+modelo4 <- plm(alum_tot ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), p_datos, model = "random")
+cov4 <- vcovCR(modelo4, type="CR1", cluster=p_datos$mun)
+robust_se4 <- sqrt(diag(cov4))
+
+# Prueba de Hausman.
+
+phtest(modelo3, modelo4)
+```
+
+
+```{r results="asis", echo=FALSE}
+stargazer(modelo1, modelo2, modelo3, modelo4,
+          title="Modelos de Diferencias en Diferencias",
+          se=list(robust_se1, robust_se2, robust_se3, robust_se4),
+          omit=c("trat", "anio", "after_14", "Constant"),
+          omit.stat=c("adj.rsq", "ser"),
+          font.size="tiny",
+          column.sep.width="0pt",
+          model.names=F,
+          column.labels=c("Pooled OLS", "Pooled OLS", "Efectos Fijos", "Efectos Aleatorios"),
+          add.lines=list(c("Errores", "Cluster", "Cluster", "Cluster", "Cluster")),
+          covariate.labels = c("Diff-in-Diff 2001", "Diff-in-Diff 2002", "Diff-in-Diff 2003", "Diff-in-Diff 2004", "Diff-in-Diff 2005", "Diff-in-Diff 2006", "Diff-in-Diff 2007", "Diff-in-Diff 2008", "Diff-in-Diff 2009", "Diff-in-Diff 2010", "Diff-in-Diff 2011", "Diff-in-Diff 2012", "Diff-in-Diff 2013", "Diff-in-Diff 2014", "Diff-in-Diff 2015", "Diff-in-Diff 2016", "Diff-in-Diff 2017", "Diff-in-Diff 2018", "Diff-in-Diff 2019"),
+          dep.var.labels=c("Matrícula escolar", "Matrícula escolar", "Matrícula escolar", "Matrícula escolar", "Matrícula escolar", "Matrícula escolar"), no.space=TRUE, header=FALSE)
+```
+
+
+\elandscape
+\newpage
+
+
+Es curioso que, si regresamos a los resultados principales sobre alfabetismo, también parecería haber un salto en 2005, aunque, en ese momento, solo se habían visualizado cifras para cada 5 años y no por año como en este caso.
+
+¿Qué podría haber sucedido en 2005 que podría estar causando diferencias entre los grupos de control y tratamiento? De 2004 a 2005, no desapareció ninguno de los programas sociales de la SEP, pero se crearon tres: Programa de Educación Primaria para Niños y Niñas Migrantes, Programa Educativo Rural y Programa Nacional de Lectura (CONEVAL, 2021). Sin embargo, ninguno de ellos estuvo a cargo de la Dirección General de Educación Indígena, ni parecieran tener algún tipo de vínculo directo con las escuelas de educación indígena.
+
+Por otro lado, de 2006 a 2007, desaparecieron un total de 31 programas sociales a cargo de la SEP - todos ellos eran modalidad U (otros subsidios) - y se creó un programa de becas para Escuelas Normales Públicas. Nuevamente, ninguno de estos programas estaba a cargo de la Dirección General de Educación Indígena. Aunque no estaban directamente vinculados con las escuelas de educación indígena, uno de los que desaparecieron era un programa de infraestructura para educación básica: Fondo concursable para la inversión en infraestructura de educación básica.
+
+### 5.3.3. Mecanismo causal: Número de docentes
+
+Al respecto del número de docentes en escuelas de educación indígena, la siguiente tabla muestra los resultados del modelo. De nuevo, la primer columna es un OLS *pooled*  para el cambio de 2014, la segunda, para toda la línea de tiempo, la tercera incluye efectos fijos y la cuarta, efectos aleatorios. En todos los casos, se utilizan errores cluster por municipio.
+
+En este caso, no parece haber algún efecto relevante, con la excepción del coeficiente de 2019 que muestra una reducción de 0.588 docentes promedio por escuela. Se desconoce qué podría estar causando dicho salto, pero es muy claro que, de 2018 a 2019, hubo un incremento promedio de 0.8 docentes por escuela en el grupo de control.
+
+
+```{r include=FALSE}
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+diff <- p_datos %>%
+  group_by(trat, anio) %>%
+  summarize(means = mean(prof_tot))
+
+diff$trat <- factor(diff$trat)
+
+modelo <- lm(prof_tot ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), temp)
+
+diff$tendencia <- diff$means - coef(summary(modelo))["diff_01","Estimate"] # Coeficiente diff_01.
+diff$tendencia[diff$anio == 2000] <- diff[[21,3]] # Punto inicial del programa (means).
+diff$tendencia[diff$anio == 2002] <- diff[[23,4]] - coef(summary(modelo))["diff_02","Estimate"] # En las tendencias del programa, vamos sumando/restando coeficientes.
+diff$tendencia[diff$anio == 2003] <- diff[[24,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"]
+diff$tendencia[diff$anio == 2004] <- diff[[25,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"]
+diff$tendencia[diff$anio == 2005] <- diff[[26,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"]
+diff$tendencia[diff$anio == 2006] <- diff[[27,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"]
+diff$tendencia[diff$anio == 2007] <- diff[[28,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"]
+diff$tendencia[diff$anio == 2008] <- diff[[29,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"]
+diff$tendencia[diff$anio == 2009] <- diff[[30,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"]
+diff$tendencia[diff$anio == 2010] <- diff[[31,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"]
+diff$tendencia[diff$anio == 2011] <- diff[[32,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"]
+diff$tendencia[diff$anio == 2012] <- diff[[33,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"]
+diff$tendencia[diff$anio == 2013] <- diff[[34,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"]
+diff$tendencia[diff$anio == 2014] <- diff[[35,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"]
+diff$tendencia[diff$anio == 2015] <- diff[[36,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"]
+diff$tendencia[diff$anio == 2016] <- diff[[37,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"]
+diff$tendencia[diff$anio == 2017] <- diff[[38,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"]
+diff$tendencia[diff$anio == 2018] <- diff[[39,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"] - coef(summary(modelo))["diff_18","Estimate"]
+diff$tendencia[diff$anio == 2019] <- diff[[40,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"] - coef(summary(modelo))["diff_18","Estimate"] - coef(summary(modelo))["diff_19","Estimate"]
+
+diff$means <- as.numeric(diff$means)
+diff$tendencia <- as.numeric(diff$tendencia)
+diff$anio <- as.numeric(diff$anio)
+
+diff$anio[diff$anio == 1] <- 2000
+diff$anio[diff$anio == 2] <- 2001
+diff$anio[diff$anio == 3] <- 2002
+diff$anio[diff$anio == 4] <- 2003
+diff$anio[diff$anio == 5] <- 2004
+diff$anio[diff$anio == 6] <- 2005
+diff$anio[diff$anio == 7] <- 2006
+diff$anio[diff$anio == 8] <- 2007
+diff$anio[diff$anio == 9] <- 2008
+diff$anio[diff$anio == 10] <- 2009
+diff$anio[diff$anio == 11] <- 2010
+diff$anio[diff$anio == 12] <- 2011
+diff$anio[diff$anio == 13] <- 2012
+diff$anio[diff$anio == 14] <- 2013
+diff$anio[diff$anio == 15] <- 2014
+diff$anio[diff$anio == 16] <- 2015
+diff$anio[diff$anio == 17] <- 2016
+diff$anio[diff$anio == 18] <- 2017
+diff$anio[diff$anio == 19] <- 2018
+diff$anio[diff$anio == 20] <- 2019
+
+diff$means <- round(diff$means, 1)
+diff$tendencia <- round(diff$tendencia, 1)
+```
+
+
+```{r results="asis", echo=FALSE, warning=FALSE}
+ggplot(diff, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff, trat==0)) +
+  geom_line(data=subset(diff, trat==1)) +
+  geom_point(data=subset(diff, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  ggtitle("Gráfica 17. Diff-in-Diff del Programa de Inclusión y Equidad Educativa") +
+  labs(x="Año", y="Número de docentes", color="Programa") +
+  xlim(2000, 2020)
+```
+
+
+\newpage
+\blandscape
+
+
+```{r include=FALSE}
+### Número de docentes.
+
+# 1. Pooled OLS: solo 2014.
+
+modelo1 <- lm(prof_tot ~ trat + diff_14 + after_14, temp)
+cov1 <- vcovCR(modelo1, type="CR1", cluster=temp$mun)
+robust_se1 <- sqrt(diag(cov1))
+
+# 2. Pooled OLS.
+
+modelo2 <- lm(prof_tot ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), temp)
+cov2 <- vcovCR(modelo2, type="CR1", cluster=temp$mun)
+robust_se2 <- sqrt(diag(cov2))
+
+# 3. Efectos Fijos.
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+modelo3 <- plm(prof_tot ~ diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), p_datos, model = "within")
+cov3 <- vcovCR(modelo3, type="CR1", cluster=p_datos$mun)
+robust_se3 <- sqrt(diag(cov3))
+
+# 4. Efectos Aleatorios.
+
+modelo4 <- plm(prof_tot ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), p_datos, model = "random")
+cov4 <- vcovCR(modelo4, type="CR1", cluster=p_datos$mun)
+robust_se4 <- sqrt(diag(cov4))
+
+# Prueba de Hausman.
+
+phtest(modelo3, modelo4)
+```
+
+
+```{r results="asis", echo=FALSE}
+stargazer(modelo1, modelo2, modelo3, modelo4,
+          title="Modelos de Diferencias en Diferencias",
+          se=list(robust_se1, robust_se2, robust_se3, robust_se4),
+          omit=c("trat", "anio", "after_14", "Constant"),
+          omit.stat=c("adj.rsq", "ser"),
+          font.size="tiny",
+          column.sep.width="0pt",
+          model.names=F,
+          column.labels=c("Pooled OLS", "Pooled OLS", "Efectos Fijos", "Efectos Aleatorios"),
+          add.lines=list(c("Errores", "Cluster", "Cluster", "Cluster", "Cluster")),
+          covariate.labels = c("Diff-in-Diff 2001", "Diff-in-Diff 2002", "Diff-in-Diff 2003", "Diff-in-Diff 2004", "Diff-in-Diff 2005", "Diff-in-Diff 2006", "Diff-in-Diff 2007", "Diff-in-Diff 2008", "Diff-in-Diff 2009", "Diff-in-Diff 2010", "Diff-in-Diff 2011", "Diff-in-Diff 2012", "Diff-in-Diff 2013", "Diff-in-Diff 2014", "Diff-in-Diff 2015", "Diff-in-Diff 2016", "Diff-in-Diff 2017", "Diff-in-Diff 2018", "Diff-in-Diff 2019"),
+          dep.var.labels=c("Número de docentes", "Número de docentes", "Número de docentes", "Número de docentes"), no.space=TRUE, header=FALSE)
+```
+
+
+\elandscape
+\newpage
+
+
+### 5.3.4. Mecanismo causal: Docentes con educación superior
+
+Sobre los docentes con educación superior y siguiendo la misma estructura de la tabla de regresión de los casos anteriores, no se observa un impacto vinculado con la presencia del programa.
+
+Se observan coeficientes positivos pequeños y apenas significativos al 10% en 2017 y 2018, aunque, para 2019, el coeficiente es negativo y significativo al 1%. Al igual que con el número de docentes, el grupo de control mostró un incremento promedio de un docente con educación superior por escuela de 2018 a 2019.
+
+
+```{r include=FALSE}
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+diff <- p_datos %>%
+  group_by(trat, anio) %>%
+  summarize(means = mean(prof_sup))
+
+diff$trat <- factor(diff$trat)
+
+modelo <- lm(prof_sup ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), temp)
+
+diff$tendencia <- diff$means - coef(summary(modelo))["diff_01","Estimate"] # Coeficiente diff_01.
+diff$tendencia[diff$anio == 2000] <- diff[[21,3]] # Punto inicial del programa (means).
+diff$tendencia[diff$anio == 2002] <- diff[[23,4]] - coef(summary(modelo))["diff_02","Estimate"] # En las tendencias del programa, vamos sumando/restando coeficientes.
+diff$tendencia[diff$anio == 2003] <- diff[[24,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"]
+diff$tendencia[diff$anio == 2004] <- diff[[25,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"]
+diff$tendencia[diff$anio == 2005] <- diff[[26,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"]
+diff$tendencia[diff$anio == 2006] <- diff[[27,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"]
+diff$tendencia[diff$anio == 2007] <- diff[[28,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"]
+diff$tendencia[diff$anio == 2008] <- diff[[29,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"]
+diff$tendencia[diff$anio == 2009] <- diff[[30,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"]
+diff$tendencia[diff$anio == 2010] <- diff[[31,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"]
+diff$tendencia[diff$anio == 2011] <- diff[[32,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"]
+diff$tendencia[diff$anio == 2012] <- diff[[33,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"]
+diff$tendencia[diff$anio == 2013] <- diff[[34,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"]
+diff$tendencia[diff$anio == 2014] <- diff[[35,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"]
+diff$tendencia[diff$anio == 2015] <- diff[[36,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"]
+diff$tendencia[diff$anio == 2016] <- diff[[37,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"]
+diff$tendencia[diff$anio == 2017] <- diff[[38,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"]
+diff$tendencia[diff$anio == 2018] <- diff[[39,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"] - coef(summary(modelo))["diff_18","Estimate"]
+diff$tendencia[diff$anio == 2019] <- diff[[40,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"] - coef(summary(modelo))["diff_18","Estimate"] - coef(summary(modelo))["diff_19","Estimate"]
+
+diff$means <- as.numeric(diff$means)
+diff$tendencia <- as.numeric(diff$tendencia)
+diff$anio <- as.numeric(diff$anio)
+
+diff$anio[diff$anio == 1] <- 2000
+diff$anio[diff$anio == 2] <- 2001
+diff$anio[diff$anio == 3] <- 2002
+diff$anio[diff$anio == 4] <- 2003
+diff$anio[diff$anio == 5] <- 2004
+diff$anio[diff$anio == 6] <- 2005
+diff$anio[diff$anio == 7] <- 2006
+diff$anio[diff$anio == 8] <- 2007
+diff$anio[diff$anio == 9] <- 2008
+diff$anio[diff$anio == 10] <- 2009
+diff$anio[diff$anio == 11] <- 2010
+diff$anio[diff$anio == 12] <- 2011
+diff$anio[diff$anio == 13] <- 2012
+diff$anio[diff$anio == 14] <- 2013
+diff$anio[diff$anio == 15] <- 2014
+diff$anio[diff$anio == 16] <- 2015
+diff$anio[diff$anio == 17] <- 2016
+diff$anio[diff$anio == 18] <- 2017
+diff$anio[diff$anio == 19] <- 2018
+diff$anio[diff$anio == 20] <- 2019
+
+diff$means <- round(diff$means, 1)
+diff$tendencia <- round(diff$tendencia, 1)
+```
+
+
+```{r results="asis", echo=FALSE, warning=FALSE}
+ggplot(diff, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff, trat==0)) +
+  geom_line(data=subset(diff, trat==1)) +
+  geom_point(data=subset(diff, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  ggtitle("Gráfica 18. Diff-in-Diff del Programa de Inclusión y Equidad Educativa") +
+  labs(x="Año", y="Docentes con educación superior", color="Programa") +
+  xlim(2000, 2020)
+```
+
+
+\newpage
+\blandscape
+
+
+```{r include=FALSE}
+### Número de docentes con educación superior.
+
+# 1. Pooled OLS: solo 2014.
+
+modelo1 <- lm(prof_sup ~ trat + diff_14 + after_14, temp)
+cov1 <- vcovCR(modelo1, type="CR1", cluster=temp$mun)
+robust_se1 <- sqrt(diag(cov1))
+
+# 2. Pooled OLS.
+
+modelo2 <- lm(prof_sup ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), temp)
+cov2 <- vcovCR(modelo2, type="CR1", cluster=temp$mun)
+robust_se2 <- sqrt(diag(cov2))
+
+# 3. Efectos Fijos.
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+modelo3 <- plm(prof_sup ~ diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), p_datos, model = "within")
+cov3 <- vcovCR(modelo3, type="CR1", cluster=p_datos$mun)
+robust_se3 <- sqrt(diag(cov3))
+
+# 4. Efectos Aleatorios.
+
+modelo4 <- plm(prof_sup ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), p_datos, model = "random")
+cov4 <- vcovCR(modelo4, type="CR1", cluster=p_datos$mun)
+robust_se4 <- sqrt(diag(cov4))
+
+# Prueba de Hausman.
+
+phtest(modelo3, modelo4)
+```
+
+
+```{r results="asis", echo=FALSE}
+stargazer(modelo1, modelo2, modelo3, modelo4,
+          title="Modelos de Diferencias en Diferencias",
+          se=list(robust_se1, robust_se2, robust_se3, robust_se4),
+          omit=c("trat", "anio", "after_14", "Constant"),
+          omit.stat=c("adj.rsq", "ser"),
+          font.size="tiny",
+          column.sep.width="0pt",
+          model.names=F,
+          column.labels=c("Pooled OLS", "Pooled OLS", "Efectos Fijos", "Efectos Aleatorios"),
+          add.lines=list(c("Errores", "Cluster", "Cluster", "Cluster", "Cluster")),
+          covariate.labels = c("Diff-in-Diff 2001", "Diff-in-Diff 2002", "Diff-in-Diff 2003", "Diff-in-Diff 2004", "Diff-in-Diff 2005", "Diff-in-Diff 2006", "Diff-in-Diff 2007", "Diff-in-Diff 2008", "Diff-in-Diff 2009", "Diff-in-Diff 2010", "Diff-in-Diff 2011", "Diff-in-Diff 2012", "Diff-in-Diff 2013", "Diff-in-Diff 2014", "Diff-in-Diff 2015", "Diff-in-Diff 2016", "Diff-in-Diff 2017", "Diff-in-Diff 2018", "Diff-in-Diff 2019"),
+          dep.var.labels=c("Docentes con educación superior", "Docentes con educación superior", "Docentes con educación superior", "Docentes con educación superior"), no.space=TRUE, header=FALSE)
+```
+
+
+\elandscape
+\newpage
+
+
+### 5.3.5. Mecanismo causal: Número de aulas
+
+Utilizando ahora el número de aulas como proxy de infraestructura escolar, la siguiente tabla muestra los resultados del modelo de regresión.
+
+En promedio, la presencia del programa está asociada con un incremento de 0.272 aulas por escuela de educación indígena. Al incorporar la información por año, únicamente el coeficiente de 2017 parece mostrar un incremento de 0.113 docentes con educación superior apenas significativo al 10%, con un salto en el placebo de 2006 por 0.091 docentes.
+
+Existe un reto para observar saltos en esta variable, ya que no solo se compone de números enteros (como en los casos previos), sino que el rango de las medias oscila entre 4.1 y 4.7. Sin embargo, en la gráfica, sí es relativamente claro que, a partir de 2014, la diferencia entre las curvas se comienza a agrandar. Las escuelas indígenas en municipios del programa no mostraron reducciones en promedio, a diferencia de las del grupo de control.
+
+
+```{r include=FALSE}
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+diff <- p_datos %>%
+  group_by(trat, anio) %>%
+  summarize(means = mean(aulas))
+
+diff$trat <- factor(diff$trat)
+
+modelo <- lm(aulas ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), temp)
+
+diff$tendencia <- diff$means - coef(summary(modelo))["diff_01","Estimate"] # Coeficiente diff_01.
+diff$tendencia[diff$anio == 2000] <- diff[[21,3]] # Punto inicial del programa (means).
+diff$tendencia[diff$anio == 2002] <- diff[[23,4]] - coef(summary(modelo))["diff_02","Estimate"] # En las tendencias del programa, vamos sumando/restando coeficientes.
+diff$tendencia[diff$anio == 2003] <- diff[[24,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"]
+diff$tendencia[diff$anio == 2004] <- diff[[25,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"]
+diff$tendencia[diff$anio == 2005] <- diff[[26,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"]
+diff$tendencia[diff$anio == 2006] <- diff[[27,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"]
+diff$tendencia[diff$anio == 2007] <- diff[[28,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"]
+diff$tendencia[diff$anio == 2008] <- diff[[29,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"]
+diff$tendencia[diff$anio == 2009] <- diff[[30,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"]
+diff$tendencia[diff$anio == 2010] <- diff[[31,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"]
+diff$tendencia[diff$anio == 2011] <- diff[[32,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"]
+diff$tendencia[diff$anio == 2012] <- diff[[33,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"]
+diff$tendencia[diff$anio == 2013] <- diff[[34,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"]
+diff$tendencia[diff$anio == 2014] <- diff[[35,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"]
+diff$tendencia[diff$anio == 2015] <- diff[[36,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"]
+diff$tendencia[diff$anio == 2016] <- diff[[37,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"]
+diff$tendencia[diff$anio == 2017] <- diff[[38,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"]
+diff$tendencia[diff$anio == 2018] <- diff[[39,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"] - coef(summary(modelo))["diff_18","Estimate"]
+diff$tendencia[diff$anio == 2019] <- diff[[40,4]] - coef(summary(modelo))["diff_02","Estimate"] - coef(summary(modelo))["diff_03","Estimate"] - coef(summary(modelo))["diff_04","Estimate"] - coef(summary(modelo))["diff_05","Estimate"] - coef(summary(modelo))["diff_06","Estimate"] - coef(summary(modelo))["diff_07","Estimate"] - coef(summary(modelo))["diff_08","Estimate"] - coef(summary(modelo))["diff_09","Estimate"] - coef(summary(modelo))["diff_10","Estimate"] - coef(summary(modelo))["diff_11","Estimate"] - coef(summary(modelo))["diff_12","Estimate"] - coef(summary(modelo))["diff_13","Estimate"] - coef(summary(modelo))["diff_14","Estimate"] - coef(summary(modelo))["diff_15","Estimate"] - coef(summary(modelo))["diff_16","Estimate"] - coef(summary(modelo))["diff_17","Estimate"] - coef(summary(modelo))["diff_18","Estimate"] - coef(summary(modelo))["diff_19","Estimate"]
+
+diff$means <- as.numeric(diff$means)
+diff$tendencia <- as.numeric(diff$tendencia)
+diff$anio <- as.numeric(diff$anio)
+
+diff$anio[diff$anio == 1] <- 2000
+diff$anio[diff$anio == 2] <- 2001
+diff$anio[diff$anio == 3] <- 2002
+diff$anio[diff$anio == 4] <- 2003
+diff$anio[diff$anio == 5] <- 2004
+diff$anio[diff$anio == 6] <- 2005
+diff$anio[diff$anio == 7] <- 2006
+diff$anio[diff$anio == 8] <- 2007
+diff$anio[diff$anio == 9] <- 2008
+diff$anio[diff$anio == 10] <- 2009
+diff$anio[diff$anio == 11] <- 2010
+diff$anio[diff$anio == 12] <- 2011
+diff$anio[diff$anio == 13] <- 2012
+diff$anio[diff$anio == 14] <- 2013
+diff$anio[diff$anio == 15] <- 2014
+diff$anio[diff$anio == 16] <- 2015
+diff$anio[diff$anio == 17] <- 2016
+diff$anio[diff$anio == 18] <- 2017
+diff$anio[diff$anio == 19] <- 2018
+diff$anio[diff$anio == 20] <- 2019
+
+diff$means <- round(diff$means, 1)
+diff$tendencia <- round(diff$tendencia, 1)
+```
+
+
+```{r results="asis", echo=FALSE, warning=FALSE}
+ggplot(diff, aes(x=anio, y=means, color=trat, label=means)) +
+  geom_point() +
+  geom_line(data=subset(diff, trat==0)) +
+  geom_line(data=subset(diff, trat==1)) +
+  geom_point(data=subset(diff, trat==1), aes(x=anio, y=tendencia, label=tendencia)) +
+  geom_line(data=subset(diff, trat==1), aes(x=anio, y=tendencia), linetype="dashed") +
+  geom_text(vjust=-.5) +
+  ggtitle("Gráfica 20. Diff-in-Diff del Programa de Inclusión y Equidad Educativa") +
+  labs(x="Año", y="Número de aulas", color="Programa") +
+  xlim(2000, 2020)
+```
+
+
+\newpage
+\blandscape
+
+
+```{r include=FALSE}
+### Número de aulas.
+
+# 1. Pooled OLS: solo 2014.
+
+modelo1 <- lm(aulas ~ trat + diff_14 + after_14, temp)
+cov1 <- vcovCR(modelo1, type="CR1", cluster=temp$mun)
+robust_se1 <- sqrt(diag(cov1))
+
+# 2. Pooled OLS.
+
+modelo2 <- lm(aulas ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), temp)
+cov2 <- vcovCR(modelo2, type="CR1", cluster=temp$mun)
+robust_se2 <- sqrt(diag(cov2))
+
+# 3. Efectos Fijos.
+
+p_datos <- pdata.frame(temp, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- p_datos[order(p_datos$mun, p_datos$anio),]
+
+modelo3 <- plm(aulas ~ diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), p_datos, model = "within")
+cov3 <- vcovCR(modelo3, type="CR1", cluster=p_datos$mun)
+robust_se3 <- sqrt(diag(cov3))
+
+# 4. Efectos Aleatorios.
+
+modelo4 <- plm(aulas ~ trat + diff_01 + diff_02 + diff_03 + diff_04 + diff_05 + diff_06 + diff_07 + diff_08 + diff_09 + diff_10 + diff_11 + diff_12 + diff_13 + diff_14 + diff_15 + diff_16 + diff_17 + diff_18 + diff_19 + factor(anio), p_datos, model = "random")
+cov4 <- vcovCR(modelo4, type="CR1", cluster=p_datos$mun)
+robust_se4 <- sqrt(diag(cov4))
+
+# Prueba de Hausman.
+
+phtest(modelo3, modelo4)
+```
+
+
+```{r results="asis", echo=FALSE}
+stargazer(modelo1, modelo2, modelo3, modelo4,
+          title="Modelos de Diferencias en Diferencias",
+          se=list(robust_se1, robust_se2, robust_se3, robust_se4),
+          omit=c("trat", "anio", "after_14", "Constant"),
+          omit.stat=c("adj.rsq", "ser"),
+          font.size="tiny",
+          column.sep.width="0pt",
+          model.names=F,
+          column.labels=c("Pooled OLS", "Pooled OLS", "Efectos Fijos", "Efectos Aleatorios"),
+          add.lines=list(c("Errores", "Cluster", "Cluster", "Cluster", "Cluster")),
+          covariate.labels = c("Diff-in-Diff 2001", "Diff-in-Diff 2002", "Diff-in-Diff 2003", "Diff-in-Diff 2004", "Diff-in-Diff 2005", "Diff-in-Diff 2006", "Diff-in-Diff 2007", "Diff-in-Diff 2008", "Diff-in-Diff 2009", "Diff-in-Diff 2010", "Diff-in-Diff 2011", "Diff-in-Diff 2012", "Diff-in-Diff 2013", "Diff-in-Diff 2014", "Diff-in-Diff 2015", "Diff-in-Diff 2016", "Diff-in-Diff 2017", "Diff-in-Diff 2018", "Diff-in-Diff 2019"),
+          dep.var.labels=c("Número de aulas", "Número de aulas", "Número de aulas", "Número de aulas"), no.space=TRUE, header=FALSE)
+```
+
+
+\elandscape
+\newpage
+
+
+### 5.3.6. Efectos indirectos: Alfabetización de madres y abuelas
+
+Finalmente, se hizo un esfuerzo por visualizar posibles efectos indirectos vinculados con la aplicación del programa. En específico, se analizó el alfabetismo de madres y abuelas medido como el porcentaje de alfabetismo de mujeres en hogares con niñas y niños de 6 a 11 años entre municipios de control y del programa, utilizando las cifras del Conteo, Censos y Encuesta Intercensal del INEGI.
+
+La siguiente tabla muestra los resultados del modelo de Diferencias en Diferencias por grupos de edad de las mujeres: 21 a 40 años, 40 a 60 años y 60 o más años. En todos los casos, se utilizaron efectos fijos y errores cluster por municipio. Sin embargo, no se observa ningún tipo de efecto vinculado con la aplicación del programa para ningún grupo de edad.
+
+
+\newpage
+\blandscape
+
+
+```{r include=FALSE}
+### Regresiones por edades.
+
+### Modelo base: Efectos Fijos
+
+temp <- subset(mujeres)
+
+temp$after_00 <- 0
+temp$after_00[temp$anio > 2000] <- 1
+
+temp$after_05 <- 0
+temp$after_05[temp$anio > 2005] <- 1
+
+temp$after_10 <- 0
+temp$after_10[temp$anio > 2010] <- 1
+
+temp$after_15 <- 0
+temp$after_15[temp$anio > 2015] <- 1
+
+temp$diff_05 <- temp$trat * temp$after_00
+temp$diff_10 <- temp$trat * temp$after_05
+temp$diff_15 <- temp$trat * temp$after_10
+temp$diff_20 <- temp$trat * temp$after_15
+
+# 1. Grupo de 21 a 40 años.
+
+p_datos <- subset(temp, grupo == "edad_21a40")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- make.pbalanced(p_datos, balance.type = "fill") # Nos quedamos con el panel balanceado.
+is.pbalanced(p_datos)
+
+modelo1 <- plm(asisten ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov1 <- vcovCR(modelo1, type="CR1", cluster=p_datos$mun)
+robust_se1 <- sqrt(diag(cov1))
+
+# 2. Grupo de 40 a 60 años.
+
+p_datos <- subset(temp, grupo == "edad_40a60")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- make.pbalanced(p_datos, balance.type = "fill") # Nos quedamos con el panel balanceado.
+is.pbalanced(p_datos)
+
+modelo2 <- plm(asisten ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov2 <- vcovCR(modelo2, type="CR1", cluster=p_datos$mun)
+robust_se2 <- sqrt(diag(cov2))
+
+# 3. Grupo de 60 o más años.
+
+p_datos <- subset(temp, grupo == "edad_60mas")
+p_datos <- pdata.frame(p_datos, index = c("mun", "anio"))
+is.pbalanced(p_datos)
+p_datos <- make.pbalanced(p_datos, balance.type = "fill") # Nos quedamos con el panel balanceado.
+is.pbalanced(p_datos)
+
+modelo3 <- plm(asisten ~ diff_05 + diff_10 + diff_15 + diff_20 + factor(anio), p_datos, model = "within")
+cov3 <- vcovCR(modelo3, type="CR1", cluster=p_datos$mun)
+robust_se3 <- sqrt(diag(cov3))
+```
+
+
+```{r results="asis", echo=FALSE}
+stargazer(modelo1, modelo2, modelo3,
+          title="Modelos de Diferencias en Diferencias",
+          se=list(robust_se1, robust_se2, robust_se3),
+          omit=c("anio"),
+          font.size="scriptsize",
+          column.sep.width="0pt",
+          model.names=F,
+          column.labels=c("Efectos Fijos", "Efectos Fijos", "Efectos Fijos"),
+          add.lines=list(c("Edades", "21 a 40 años", "40 a 60 años", "60 o más años"),
+                         c("Errores", "Cluster", "Cluster", "Cluster"),
+                         c("Efectos", "FE", "FE", "FE")),
+          covariate.labels = c("Diff-in-Diff 2005", "Diff-in-Diff 2010", "Diff-in-Diff 2015", "Diff-in-Diff 2020"),
+          dep.var.labels="Alfabetismo", no.space=TRUE, header=FALSE)
+```
+
+
+\elandscape
+\newpage
+
+
+\newpage
+
+
+# 6. Conclusiones
+
+*"Las lenguas son importantes, pero mucho más importantes son sus hablantes. Las lenguas mueren porque sus hablantes son discriminados y violentados", Elena Yasnaya Aguilar.*
+
+El proceso de alfabetización juega un papel fundamental para el pleno desarrollo de las personas. Uno de los sectores que ven más vulnerado su acceso a la educación es la población indígena. Este estudio se plantea una primer hipótesis de que, en parte, hablar una lengua indígena tiene efectos negativos sobre la alfabetización, ya que el español y las lenguas indígenas pertenecen a familias lingüísticas diferentes, lo que dificulta los procesos de aprendizaje de la morfología y sintaxis del español y se traduce en mayores niveles de analfabetismo. La segunda hipótesis que se analiza es que el componente de educación indígena del Programa de Inclusión y Equidad Educativa de 2014 a 2019 tuvo un impacto positivo sobre el proceso de alfabetización de la población indígena.
+
+Utilizando información a nivel municipal provenientes del Censos de Población 2010 y la Encuesta Intercensal 2015, se estimaron modelos de regresión para datos panel: efectos fijos y efectos aleatorios. Sobre la primer hipótesis, se concluye que, ceteris paribus, un incremento de un punto en el porcentaje de la población que habla lengua indígena causa un decremento promedio de 0.052 puntos en el alfabetismo de los municipios de México, independientemente del nivel de pobreza, desigualdad, género, urbanización, población, rezago educativo, escolaridad, asistencia escolar y bienestar económico.
+
+Al respecto de la segunda hipótesis, se utilizó información a nivel municipal sobre las escuelas de educación indígena que percibieron recursos por parte del Programa de Inclusión y Equidad Educativa entre 2014 y 2019 y se anexan las cifras del Censo de Población 2020, así como del Censo de Población 2000 y el Conteo de Población 2005 para probar el supuesto de tendencias paralelas.
+
+Utilizando múltiples especificaciones para estimar modelos de Diferencias en Diferencias, se concluye que, ceteris paribus, la presencia del Programa de Inclusión y Equidad Educativa generó un incremento de 3.424 puntos porcentuales en la media del alfabetismo de niñas y niños entre 6 y 11 años de los municipios con escuelas de educación indígena en México entre 2010 y 2020. El mayor impacto se parece concentrar entre las niñas y niños de 6 a 7 años (entre 4.219 y 5.741 puntos porcentuales), pero la evidencia más robusta se refiere al efecto para la población de 9, 10 y 11 años: 2.580, 1.669 y 1.021 puntos porcentuales, respectivamente.
+
+Para cada especificación de modelos, se incorporaron efectos placebo entre 2000 y 2010 con el objetivo de aportar evidencia sobre el supuesto de tendencias paralelas. Sin embargo, la evidencia parece señalar que algunos coeficientes podrían estar sesgados y que el método de Diferencias en Diferencias podría no ser la mejor aproximación para realizar esta evaluación de impacto: especialmente, para el caso de la población de 6 a 8 años. Los resultados son más robustos para las niñas y niños de 9 a 11 años.
+
+En términos del mecanismo causal, este efecto podría pasar por un aumento en la infraestructura escolar o por una mejora en la calidad docente; sin embargo, no se cuenta con información municipal de tipo panel para probar el efecto del programa sobre dichos ámbitos con precisión. Sin embargo, se utilizaron distintas variables proxy para probar el mecanismo causal.
+
+Se encontró que la aplicación del programa está vinculada con un incremento 1.312 puntos porcentuales en la asistencia escolar por municipio e incrementos de 2.502 alumnas y alumnos en la matrícula escolar y 0.113 aulas por escuela de educación indígena en municipios del programa.
+
+Lo que esta evidencia señala es que el sistema educativo mexicano debe adaptarse para permitir una mayor inclusión de la población indígena en los procesos de alfabetización, sin que dejen de lago su herencia cultural. De hecho, la evidencia tiende a señalar que la enseñanza básica se tendría que basar en la lengua materna (Bühmann y Trudell 2007; Ganuza y Hedman 2017; Nkonde, et al. 2018), mientras que el español se aprenda solo como segunda lengua durante los primeros años. Para ello, es esencial fortalecer a las escuelas de educación indígena: por ejemplo, a través de intervenciones como el Programa de Inclusión y Equidad Educativa.
+
+Sin embargo, si bien este programa originalmente se fragmentó en cuatro programas diferentes en 2020, el componente para educación indígena (ahora Programa de Atención a la Diversidad de la Educación Indígena) desapareció para el ejercicio 2021. La educación es una condición necesaria para el desarrollo, pero no se puede garantizar sin presupuesto (sobre todo, donde más se necesita).
+
+Los procesos educativos deben ser plurales y adaptables al contexto de cada región; esto no solo representa una condición necesaria para el desarrollo de sectores de la población históricamente discriminados, sino que es una condición mínima de justicia social para garantizar la igualdad en el acceso a los derechos sociales. Intervenciones relativamente simples como la del Programa de Inclusión y Equidad Educativa pueden mejorar los aprendizajes del español durante el periodo crítico (previo a los 12 años).
+
+
+\newpage
+
+
+# 7. Bibliografía
+
+Albó, X., & at, e. (2009). Atlas sociolingüístico de pueblos indígenas en América Latina. Obtenido de https://www.unicef.org/honduras/tomo_1_atlas.pdf
+
+Angrist, Joshua y Pischke, Jörn-Steffen. (2009). Mostly Harmless Econometrics. Princeton, NJ: Princeton University Press.
+
+Banerjee, Abhijit y Duflo, Esther. (2011). Poor Economics: A radical rethinking of the way to fight global poverty. New York, NY: PublicAffairs.
+
+Barret, P., et al. (2019). *The Impact of School Infraestructure on Learning: A Synthesis of the Evidence*. Washington, DC: The World Bank.
+
+Behrman, J., et al. (2015). *Aligning Learning Incentives of Students and Teachers: Results from a Social Experiment in Mexican High Schools*. Journal of Political Economy, Vol. 123, No. 2, pp. 325-364.
+
+Bruns, B. y Luque, J. (2015). Profesores Excelentes: Cómo mejorar el aprendizaje en América Latina y el Caribe. Washington, DC: The World Bank.
+
+Bühmann, Dörthe y Trudell, Barbara. (2007). Mother tongue matters: local language as a key to effective learning. Francia: UNESCO.
+
+Cárdenas, V. (2010). La relación entre semántica y sintaxis desde la perspectiva de la producción de lenguaje escrito. Obtenido de http://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S1665-12002010000100008
+
+Carneiro, P. et al. (2019). *Parental Beliefs, Investments and Child Development: Evidence from a Large-Scale Experiment*. IZA Discussion Paper 12506.
+
+Chetty, R., et al. (2011). *How does your kindergarten classroom affect your earnings? Evidence from Project Star*. NBER Working Paper 16381.
+
+Chomsky, N. (2017). *50 years later: a converation about the biological study of language with Noam Chomsky. An interview with Patrick Trettenbrein*. Biolinguistics. Vol. 11.
+
+CONEVAL. (2015). Medición de la Pobreza: La Cohesión Social. Obtenido de https://www.coneval.org.mx/Medicion/Paginas/Cohesion_Social.aspx
+
+CONEVAL. (2018). *Estudio Diagnóstico del Derecho a la Educación 2018*. México: CONEVAL.
+
+CONEVAL. (2021). *Inventario CONEVAL de Programas y Acciones Federales de Desarrollo Social*. Consultado el 09/08/2021 en https://www.coneval.org.mx/evaluacion/ipfe/Paginas/default.aspx
+
+Cunha, F., & Heckman, J. (2007). *The technology of skill formation*. American Economic Review, 97(2), 31-47.
+
+De Hoyos, R. Estrada, R. y Vargas, M. (2018). *Predicting individual wellbeing through test scores: evidence from a national assessment in Mexico*. Policy Research Working Paper 8459, The World Bank.
+
+De Hoyos, R., Holland, P. y Troiano, S. (2015). *Understanding the trends in learning outomes in Argentina, 2000 to 2012*. Policy Research Working Paper 7518, The World Bank.
+
+DOF. (28 de diciembre de 2013). Acuerdo número 711 por el que se emiten las Reglas de Operación del Programa para la Inclusión y la Equidad Educativa.
+
+DOF. (28 de febrero de 2019). Acuerdo número 04/02/19 por el que se emiten las Reglas de Operación del Programa para la Inclusión y la Equidad Educativa para el ejercicio fiscal 2019.
+
+Duarte, Moreno y Gargiulo. (2011). *Infraestructura Escolar y Aprendizajes en la Educación Básica Latinoamericana: Un análisis a partir del SERCE*. Banco Interamericano de Desarrollo.
+
+Elango, S., et al. (2016). *Early Childhood Education*. Economics of Means-Tested Transfer Programs in the United States. Vol. 2, Moffitt.
+
+Evans, M., et al. (2010). *Family scholarly culture and educational succed: books and schooling in 27 nations*. Research in Social Stratification and Mobility.
+
+Ganuza, Natalia y Hedman, Christina. (2017). *The impact of mother tongue instruction on the development of biliteracy: evidence from Somali-Swedish bilinguals*. Applied Linguistics, I-25. Oxford University Press.
+
+Heckman, J. et al. (1998). *Characterizing selection bias using experimental data*. Econometrica, Vol. 66, No. 5, pp. 1017-1098.
+
+Heckman, J. y Mosso, S. (2014). *The economics of human development and social mobility*. Annu. Rev. Econ., 6(1), 689-733.
+
+Hanushek, E., Piopiunik, M. y Wiederhold, S. (2014). *The value of smartet teachers: international evidence on teacher cognitive skills and student performance*. NBER Working Paper 20727.
+
+Iacus, S., King, G. y Porro, G. 2011. *Causal Inference wothout Balance Checking: Coarsened Exact Matching*. Oxford University Press.
+
+INEE. (2019). *Bases de datos INEE*. Disponible en https://historico.mejoredu.gob.mx/bases-de-datos-inee-2019#spd
+
+INEGI. (2015). Medición de la Pobreza: Pobreza a nivel municipio 2010 y 2015. Obtenido de https://www.coneval.org.mx/Medicion/Paginas/Pobreza-municipal.aspx
+
+INEGI. (2010). Censo de Población y Vivienda 2010. Obtenido de https://www.inegi.org.mx/programas/ccpv/2010/
+
+INEGI. (2010). *Clasificación de lenguas indígenas 2010*. México: INEGI.
+
+INEGI. (s.f.). Encuesta Intercensal 2015. Obtenido de https://www.inegi.org.mx/programas/intercensal/2015/
+
+King et al, 2011. *Comparative Effectiveness of Matching Methods for Causal Inference*. Working Paper.
+
+Lenneberg, E. (1975). *Fundamentos biológicos del lenguaje*. Madrid: Alianza editorial.
+
+Marlett, S. (2019). Familia y tronco: definiciones. Obtenido de http://www.mexico.sil.org/es/familia-tronco-definiciones
+
+Miscevic-Kadijevic, Gordana. (2015). *TIMSS 2011: Relationship between self-confidence and cognitive achievement for Serbia and Slovenia*. Revista Electrónica de Investigación Educativa, 17(3), 109-115.
+
+MOCYR. (2018). *Evaluación de Consistencia y Resultados 2017-2018: Programa para la Inclusión y la Equidad Educativa*. México: SEP.
+
+Muralidharan, K. y Sundararaman, V. (2011). *Performance Pay: Experimental Evidence from India*. Journal of Political Economy, Vol. 119, No. 1, pp. 39-77.
+
+Narro, J., & Moctezuma, D. (2012). Analfabetismo en México: una deuda social. Obtenido de https://www.inegi.org.mx/rde/RDE_07/Doctos/RDE_07_Art1.pdf
+
+Newport, E. (1990). *Maturational constraints on language learning*. Cognitive Science. 14, p. 11-28.
+
+Nkonde, et al. (2018). *Evaluating the impact of teaching and learning of mathematics and science using local language (language of play) in primary schools in Muchinga Province, Zambia, a case of Chinsali District*. American Journal of Educational Research, 6(8), pp. 1153-1163.
+
+Rivkin, S., Hanushek, E. y Kain, J. (2005). *Teachers, Schools and Academic Achievement*. Econometrica, Vol. 73, No. 2, pp. 417-458.
+
+SEP & INEGI. (2013). *Censo de escuelas, maestros y alumnos de educación básica y especial 2013*. Disponible en https://www.inegi.org.mx/sistemas/mapa/atlas/
+
+SEP. (2014). *Diagnóstico del Programa: Programa S244 Inclusión y Equidad Educativa*. México: SEP.
+
+Smits, Huisman y Kruijff. (2008). *Home language and education in the developing world*. Netherlands: UNESCO.
+
+Todd, Petra y Wolpin, Kenneth. (2003). *On the specification and estimation of the production function for cognitiva achievement*. The Economic Journal, Vol. 113., No. 485. Pp. F3-F33.
+
+Wittgenstein, Ludwig. (1921). Tractatus logico-philosophicus. México: ITAM.
+
+Wooldridge, Jeffrey. (2015). Introducción a la Econometría. Quinta Edición. México, DF: Cengage Learning Editores.
+
+World Bank. (2021). Loud and Clear: Effective Language of Instruction Policies for Learning. World Bank: Washington, DC.
+
+
+\newpage
+
+
+# 8. Replicabilidad
+
+
+Con el objetivo de ser transparente y para contribuir a futuros estudios que estén interesados en utilizar los datos con los que se construyó la parte empírica de esta tesis, queda a disposición pública el repositorio de GitHub que contiene el R Markdown con el código que genera este documento y todas las bases de datos que se utilizaron: https://github.com/alegrim13/ITAM_Tesis
+
+![](C:/Users/ale_g/Dropbox/ITAM MEA/Tesis MEA/QR.png)
+
+
